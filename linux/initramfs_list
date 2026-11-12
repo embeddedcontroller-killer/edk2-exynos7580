@@ -1,0 +1,17 @@
+dir /dev 0755 0 0
+dir /proc 0755 0 0
+dir /sys 0755 0 0
+dir /mnt 0755 0 0
+dir /lib 0755 0 0
+dir /lib/modules 0755 0 0
+nod /dev/console 0600 0 0 c 5 1
+nod /dev/null 0666 0 0 c 1 3
+# initramfs_list: eski makineye ait mutlak yollar. build-linux.sh bunu kullanmaz (kendi gecici
+# kokunu kurar); yalnizca elle usysgen -d kullananlar icin basvuru niteligindedir.
+file /init ./init 0755 0 0
+file /lib/modules/mmc_core.ko ./modules/mmc_core.ko 0644 0 0
+file /lib/modules/mmc_block.ko ./modules/mmc_block.ko 0644 0 0
+file /lib/modules/dw_mmc.ko ./modules/dw_mmc.ko 0644 0 0
+file /lib/modules/dw_mmc-pltfm.ko ./modules/dw_mmc-pltfm.ko 0644 0 0
+file /lib/modules/dw_mmc-exynos.ko ./modules/dw_mmc-exynos.ko 0644 0 0
+file /lib/modules/eku-modules.txt ./modules/eku-modules.txt 0644 0 0

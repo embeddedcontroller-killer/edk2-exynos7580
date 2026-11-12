@@ -1,0 +1,14 @@
+[j7init] basladi
+[j7init] /dev/fb0 yok
+[j7init] rootfs modu: eku.root=auto
+[j7init] modul yuklendi: mmc_core.ko
+[j7init] modul yuklendi: mmc_block.ko
+[j7init] modul yuklendi: dw_mmc.ko
+[j7init] modul yuklendi: dw_mmc-pltfm.ko
+[j7init] modul yuklendi: dw_mmc-exynos.ko
+[j7init] blok aygiti: var (0.0 sn)
+[j7init] 1 aday bolum
+[j7init] deneniyor: /dev/vda2
+[j7init]   rootfs tamam, init=/sbin/init
+[j7init]   rw olarak baglandi
+=== ProjectEku Alpine rootfs OK ===

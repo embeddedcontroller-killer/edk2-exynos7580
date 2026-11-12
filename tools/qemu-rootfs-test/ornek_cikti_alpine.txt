@@ -1,0 +1,24 @@
+[    0.306092]  vda: vda1 vda2
+[j7init] basladi
+[j7init] /dev/fb0 yok
+[j7init] rootfs modu: eku.root=auto
+[j7init] modul yuklendi: mmc_core.ko
+[j7init] modul yuklendi: mmc_block.ko
+[j7init] modul yuklendi: dw_mmc.ko
+[j7init] modul yuklendi: dw_mmc-pltfm.ko
+[j7init] modul yuklendi: dw_mmc-exynos.ko
+[j7init] blok aygiti: var (0.0 sn)
+[j7init] deneniyor: /dev/vda1
+[j7init]   init yok, atlandi
+[j7init] deneniyor: /dev/vda2
+[   12.350587] EXT4-fs (vda2): mounted filesystem f752e07d-1ee3-4a37-ada8-3c1b9a0799e4 ro with ordered data mode. Quota mode: disabled.
+[j7init]   rootfs tamam, init=/sbin/init
+[   12.451699] EXT4-fs (vda2): re-mounted f752e07d-1ee3-4a37-ada8-3c1b9a0799e4 r/w. Quota mode: disabled.
+[j7init]   rw olarak baglandi
+=== ProjectEku Alpine rootfs OK ===
+Linux (none) 6.12.0-dirty #3 SMP Mon Nov  9 10:53:23 UTC 2026 aarch64 Linux
+3.20.10
+/dev/vda2                56.0M      8.4M     43.1M  16% /
+giris aygitlari:
+  (yok)
+(none):~# qemu-system-aarch64: terminating on signal 15 from pid 163 (timeout)

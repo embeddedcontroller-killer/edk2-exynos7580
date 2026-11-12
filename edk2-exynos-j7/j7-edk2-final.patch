@@ -1,0 +1,3015 @@
+diff --git a/Platform/Samsung/exynos7580/Apriori.fdf.inc b/Platform/Samsung/exynos7580/Apriori.fdf.inc
+new file mode 100755
+index 0000000..52f3627
+--- /dev/null
++++ b/Platform/Samsung/exynos7580/Apriori.fdf.inc
+@@ -0,0 +1,54 @@
++APRIORI DXE {
++
++  #
++  # PI DXE Drivers producing Architectural Protocols (EFI Services)
++  #
++  INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
++  INF MdeModulePkg/Core/Dxe/DxeMain.inf
++  INF MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
++  INF MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe.inf
++  INF MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
++  INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
++  INF ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
++  INF MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
++
++  INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
++  INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
++
++  INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
++
++  INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
++  INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
++  INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
++  INF MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
++
++  INF FatPkg/EnhancedFatDxe/Fat.inf
++
++  INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
++
++  INF EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
++  INF MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
++  INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
++  INF MdeModulePkg/Universal/PrintDxe/PrintDxe.inf
++  INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
++  INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  INF SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
++  INF SecurityPkg/VariableAuthenticated/SecureBootDefaultKeysDxe/SecureBootDefaultKeysDxe.inf
++!endif
++
++  INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
++
++  INF MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
++
++
++  INF EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
++  INF MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
++  INF MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
++  INF MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
++
++  INF MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
++  INF MdeModulePkg/Bus/Usb/UsbMouseDxe/UsbMouseDxe.inf
++  INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
++}
+diff --git a/Platform/Samsung/exynos7580/Binaries/startup.nsh b/Platform/Samsung/exynos7580/Binaries/startup.nsh
+new file mode 100644
+index 0000000..55c562a
+--- /dev/null
++++ b/Platform/Samsung/exynos7580/Binaries/startup.nsh
+@@ -0,0 +1,22 @@
++@echo -off
++cls
++echo ===== ProjectEku - Galaxy J7 =====
++stall 1000000
++if exist FS0:\grubaa64.efi then
++  cls
++  FS0:\grubaa64.efi
++endif
++if exist FS1:\grubaa64.efi then
++  cls
++  FS1:\grubaa64.efi
++endif
++cls
++echo ProjectEku Linux 6.12 basliyor...
++stall 3000000
++if exist FS0:\linux.efi then
++  FS0:\linux.efi console=tty0 ignore_loglevel initcall_debug clk_ignore_unused pd_ignore_unused maxcpus=1 rdinit=/init
++endif
++if exist FS1:\linux.efi then
++  FS1:\linux.efi console=tty0 ignore_loglevel initcall_debug clk_ignore_unused pd_ignore_unused maxcpus=1 rdinit=/init
++endif
++echo linux.efi calismadi, Shell durumda
+diff --git a/Platform/Samsung/exynos7580/dxe.fdf.inc b/Platform/Samsung/exynos7580/dxe.fdf.inc
+new file mode 100644
+index 0000000..e69de29
+diff --git a/Platform/Samsung/exynos7580/exynos7580.dsc b/Platform/Samsung/exynos7580/exynos7580.dsc
+new file mode 100644
+index 0000000..e18625d
+--- /dev/null
++++ b/Platform/Samsung/exynos7580/exynos7580.dsc
+@@ -0,0 +1,73 @@
++## @file
++#
++#  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
++#  Copyright (c) 2014, Linaro Limited. All rights reserved.
++#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.
++#  Copyright (c) 2018 - 2019, Bingxing Wang. All rights reserved.
++#  Copyright (c) 2022, Xilin Wu. All rights reserved.
++#
++#  SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++##
++
++################################################################################
++#
++# Defines Section - statements that will be processed to create a Makefile.
++#
++################################################################################
++
++[Defines]
++  SOC_PLATFORM            = exynos7580
++  USE_PHYSICAL_TIMER      = FALSE
++
++!include Silicon/Samsung/ExynosPkg/ExynosCommonDsc.j7.inc
++
++[PcdsFixedAtBuild.common]
++  gArmTokenSpaceGuid.PcdSystemMemoryBase|0x40000000
++  gArmTokenSpaceGuid.PcdSystemMemorySize|0x50000000   # 0x40000000-0x90000000; 0x90000000+ is reserved/secure on J7
++
++  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress|0x40C40000     # CPU Vectors
++
++  gArmTokenSpaceGuid.PcdArmArchTimerFreqInHz|26000000
++  gArmTokenSpaceGuid.PcdArmArchTimerSecIntrNum|13
++  gArmTokenSpaceGuid.PcdArmArchTimerIntrNum|14
++  gArmTokenSpaceGuid.PcdArmArchTimerVirtIntrNum|11
++  gArmTokenSpaceGuid.PcdArmArchTimerHypIntrNum|10
++
++  gArmTokenSpaceGuid.PcdGicDistributorBase|0x10C01000
++  gArmTokenSpaceGuid.PcdGicRedistributorsBase|0x10C02000   # unused on GICv2
++  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x10C02000   # GICC (J7 DTS reg #2); S6 DSC wrongly uses the GICH address
++
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision|0x00000850
++  gEmbeddedTokenSpaceGuid.PcdPrePiStackBase|0x40C00000      # UEFI Stack
++  gEmbeddedTokenSpaceGuid.PcdPrePiStackSize|0x00040000      # 256K stack
++  #gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|44
++
++  gSamsungTokenSpaceGuid.PcdUefiMemPoolBase|0x40D00000         # DXE Heap base address
++  gSamsungTokenSpaceGuid.PcdUefiMemPoolSize|0x07000000         # UefiMemorySize, DXE heap size
++  
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferAddress|0x67000000   # from uniLoader board-a3xelte.c (Exynos 7580 sibling, ARGB8888); UNVERIFIED on J7 until the fb-probe image shows colours
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferWidth|720
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferHeight|1280
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferVisibleWidth|720
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferVisibleHeight|1280
++
++  gArmPlatformTokenSpaceGuid.PcdCPUCoresStackBase|0x4FF00000   # J7: S6 value 0x9FF90000 lies inside J7 memreserve 0x9F700000+0x900000
++  gArmPlatformTokenSpaceGuid.PcdCoreCount|8
++  gArmPlatformTokenSpaceGuid.PcdClusterCount|2
++
++  #
++  # SimpleInit
++  #
++  gSimpleInitTokenSpaceGuid.PcdDeviceTreeStore|0x80000000
++  gSimpleInitTokenSpaceGuid.PcdLoggerdUseConsole|FALSE
++
++[LibraryClasses.common]
++  KeypadDeviceImplLib|Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
++  PlatformMemoryMapLib|Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.inf
++  PlatformPeiLib|Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.inf
++  PlatformPrePiLib|Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformPrePiLib.inf
++  HwResetSystemLib|Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.inf
++  ResetSystemLib|Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.inf
++  MsPlatformDevicesLib|Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf
++  SOCSmbiosInfoLib|Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfoLib.inf
+diff --git a/Platform/Samsung/exynos7580/exynos7580.fdf b/Platform/Samsung/exynos7580/exynos7580.fdf
+new file mode 100644
+index 0000000..2a88d99
+--- /dev/null
++++ b/Platform/Samsung/exynos7580/exynos7580.fdf
+@@ -0,0 +1,274 @@
++#
++#  Copyright (c) 2018, Linaro Limited. All rights reserved.
++#
++#  This program and the accompanying materials
++#  are licensed and made available under the terms and conditions of the BSD License
++#  which accompanies this distribution.  The full text of the license may be found at
++#  http://opensource.org/licenses/bsd-license.php
++#
++#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
++#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
++#
++
++################################################################################
++#
++# FD Section
++# The [FD] Section is made up of the definition statements and a
++# description of what goes into  the Flash Device Image.  Each FD section
++# defines one flash "device" image.  A flash device image may be one of
++# the following: Removable media bootable image (like a boot floppy
++# image,) an Option ROM image (that would be "flashed" into an add-in
++# card,) a System "Flash"  image (that would be burned into a system's
++# flash) or an Update ("Capsule") image that will be used to update and
++# existing system flash.
++#
++################################################################################
++
++[FD.exynos7580_UEFI]
++BaseAddress   = $(FD_BASE)|gArmTokenSpaceGuid.PcdFdBaseAddress  # The base address of the Firmware
++Size          = $(FD_SIZE)|gArmTokenSpaceGuid.PcdFdSize
++ErasePolarity = 1
++
++# This one is tricky, it must be: BlockSize * NumBlocks = Size
++BlockSize     = 0x00001000
++NumBlocks     = 0x700
++
++################################################################################
++#
++# Following are lists of FD Region layout which correspond to the locations of different
++# images within the flash device.
++#
++# Regions must be defined in ascending order and may not overlap.
++#
++# A Layout Region start with a eight digit hex offset (leading "0x" required) followed by
++# the pipe "|" character, followed by the size of the region, also in hex with the leading
++# "0x" characters. Like:
++# Offset|Size
++# PcdOffsetCName|PcdSizeCName
++# RegionType <FV, DATA, or FILE>
++#
++################################################################################
++
++0x00000000|0x00700000
++gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
++FV = FVMAIN_COMPACT
++
++################################################################################
++#
++# FV Section
++#
++# [FV] section is used to define what components or modules are placed within a flash
++# device file.  This section also defines order the components and modules are positioned
++# within the image.  The [FV] section consists of define statements, set statements and
++# module statements.
++#
++################################################################################
++
++[FV.FvMain]
++BlockSize          = 0x40
++NumBlocks          = 0         # This FV gets compressed so make it just big enough
++FvAlignment        = 8         # FV alignment and FV attributes setting.
++ERASE_POLARITY     = 1
++MEMORY_MAPPED      = TRUE
++STICKY_WRITE       = TRUE
++LOCK_CAP           = TRUE
++LOCK_STATUS        = TRUE
++WRITE_DISABLED_CAP = TRUE
++WRITE_ENABLED_CAP  = TRUE
++WRITE_STATUS       = TRUE
++WRITE_LOCK_CAP     = TRUE
++WRITE_LOCK_STATUS  = TRUE
++READ_DISABLED_CAP  = TRUE
++READ_ENABLED_CAP   = TRUE
++READ_STATUS        = TRUE
++READ_LOCK_CAP      = TRUE
++READ_LOCK_STATUS   = TRUE
++
++# Apriori
++!include Platform/Samsung/exynos7580/Apriori.fdf.inc
++
++  INF MdeModulePkg/Core/Dxe/DxeMain.inf
++
++  #
++  # PI DXE Drivers producing Architectural Protocols (EFI Services)
++  #
++  INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
++  INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
++  INF MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
++  INF MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++!include ArmPlatformPkg/SecureBootDefaultKeys.fdf.inc
++  INF SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
++  INF SecurityPkg/EnrollFromDefaultKeysApp/EnrollFromDefaultKeysApp.inf
++  INF SecurityPkg/VariableAuthenticated/SecureBootDefaultKeysDxe/SecureBootDefaultKeysDxe.inf
++!endif
++
++  INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
++  INF EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
++  INF MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
++  INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
++  INF MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
++  INF MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe.inf
++
++  INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
++
++  #
++  # Multiple Console IO support
++  #
++  INF EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
++  INF MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
++  INF MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
++  INF MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
++  INF MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
++
++  INF ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
++  INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
++
++  INF MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
++
++# BSP drivers
++!include Platform/Samsung/exynos7580/dxe.fdf.inc
++
++  INF Silicon/Samsung/ExynosPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
++
++  INF Silicon/Samsung/ExynosPkg/Drivers/KeypadDxe/KeypadDxe.inf
++  INF Silicon/Samsung/ExynosPkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
++
++  #
++  # USB Host Support
++  #
++  INF MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
++  INF MdeModulePkg/Bus/Usb/UsbMouseDxe/UsbMouseDxe.inf
++  INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
++
++  #
++  # FAT filesystem + GPT/MBR partitioning
++  #
++  INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
++  INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
++  INF FatPkg/EnhancedFatDxe/Fat.inf
++  INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
++  INF MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
++  INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
++
++  INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
++
++  #
++  # ACPI Support
++  #
++  INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
++  INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
++  INF MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
++
++  #
++  # FDT support
++  #
++  INF EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf
++
++  #
++  # SMBIOS Support
++  #
++  INF Platform/RenegadePkg/Drivers/PlatformSmbiosDxe/PlatformSmbiosDxe.inf
++  INF MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
++
++  #
++  # UEFI applications
++  #
++  INF ShellPkg/Application/Shell/Shell.inf
++!ifdef $(INCLUDE_TFTP_COMMAND)
++  INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
++!endif #$(INCLUDE_TFTP_COMMAND)
++
++
++  #
++  # Bds
++  #
++  INF MdeModulePkg/Universal/PrintDxe/PrintDxe.inf
++  INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
++  INF MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
++  INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
++  INF MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe.inf
++  INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
++  INF MdeModulePkg/Application/UiApp/UiApp.inf
++  INF Platform/RenegadePkg/Drivers/LogoDxe/LogoDxe.inf
++
++  #
++  # Windows kernel patcher
++  #
++  INF Platform/RenegadePkg/Drivers/KernelErrataPatcher/KernelErrataPatcher.inf
++
++  #
++  # Simple Init GUI
++  #
++
++
++!if $(AB_SLOTS_SUPPORT) == TRUE
++  INF GPLDrivers/Drivers/BootSlotDxe/BootSlotDxe.inf
++  INF GPLDrivers/Application/SwitchSlotsApp/SwitchSlotsApp.inf
++!endif
++
++!if $(ENABLE_LINUX_UTILS) == 1
++  FILE FREEFORM = 4b0364cf-1c5b-47aa-9073-d7b5039ce49b {
++    SECTION RAW = tools/simpleinit.static.uefi.cfg
++    SECTION UI = "simpleinit.static.uefi.cfg"
++  }
++
++  INF Platform/RenegadePkg/Application/Reboot2PayloadApp/Reboot2PayloadApp.inf
++!endif
++
++# GRUB (Debian arm64 signed, monolithic, GPLv3). Shows up in the UEFI Shell as FSx:\grubaa64.efi (FvSimpleFileSystem)
++FILE APPLICATION = 5E8F7C2A-3B1D-4A6E-9C54-7D2A1B8E6F03 {
++    SECTION PE32 = Platform/Samsung/exynos7580/Binaries/grubaa64.efi
++    SECTION UI = "grubaa64"
++  }
++
++# Auto-run script for the UEFI Shell (the phone has no keyboard). Appears as FSx:\startup.nsh
++FILE FREEFORM = 7C1D6F52-4E0B-4B8A-8E2A-3D9B5A1F0C44 {
++    SECTION RAW = Platform/Samsung/exynos7580/Binaries/startup.nsh
++    SECTION UI = "startup.nsh"
++  }
++
++# Linux 6.12 (EFI stub, initramfs with the GUI built in). Shows up as FSx:\linux.efi
++FILE APPLICATION = 0F2B5D8E-6C41-4E2A-9B7A-5D3E1C8A4B90 {
++    SECTION PE32 = Platform/Samsung/exynos7580/Binaries/linux-Image
++    SECTION UI = "linux"
++  }
++
++# Device tree for Linux, picked up by DtPlatformDxe (gDtPlatformDefaultDtbFileGuid)
++FILE FREEFORM = 25462CDA-221F-47DF-AC1D-259CFAA4E326 {
++    SECTION RAW = Platform/Samsung/exynos7580/Binaries/j7elte.dtb
++  }
++
++# Device specific fdf
++!include $(DEVICE_DXE_FV_COMPONENTS)
++
++[FV.FVMAIN_COMPACT]
++FvAlignment        = 8
++ERASE_POLARITY     = 1
++MEMORY_MAPPED      = TRUE
++STICKY_WRITE       = TRUE
++LOCK_CAP           = TRUE
++LOCK_STATUS        = TRUE
++WRITE_DISABLED_CAP = TRUE
++WRITE_ENABLED_CAP  = TRUE
++WRITE_STATUS       = TRUE
++WRITE_LOCK_CAP     = TRUE
++WRITE_LOCK_STATUS  = TRUE
++READ_DISABLED_CAP  = TRUE
++READ_ENABLED_CAP   = TRUE
++READ_STATUS        = TRUE
++READ_LOCK_CAP      = TRUE
++READ_LOCK_STATUS   = TRUE
++
++  INF Silicon/Samsung/ExynosPkg/PrePi/PrePi.inf
++
++  FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
++    SECTION GUIDED EE4E5898-3914-4259-9D6E-DC7BD79403CF PROCESSING_REQUIRED = TRUE {
++      SECTION FV_IMAGE = FVMAIN
++    }
++  }
++
++!include Silicon/Samsung/ExynosPkg/ExynosCommonFdf.inc
++
++
+diff --git a/Platform/Samsung/exynos7580/exynos7580.fdf.inc b/Platform/Samsung/exynos7580/exynos7580.fdf.inc
+new file mode 100644
+index 0000000..e69de29
+diff --git a/Platform/Samsung/exynos7580/j7.dsc b/Platform/Samsung/exynos7580/j7.dsc
+new file mode 100644
+index 0000000..35e662f
+--- /dev/null
++++ b/Platform/Samsung/exynos7580/j7.dsc
+@@ -0,0 +1,29 @@
++[Defines]
++  PLATFORM_NAME                  = j7
++  PLATFORM_GUID                  = 5b7c0f7e-2a6d-4f0e-9a63-7580a15c0007
++  PLATFORM_VERSION               = 0.1
++  DSC_SPECIFICATION              = 0x00010019
++  OUTPUT_DIRECTORY               = Build/$(PLATFORM_NAME)
++  SUPPORTED_ARCHITECTURES        = AARCH64
++  BUILD_TARGETS                  = DEBUG|RELEASE
++  SKUID_IDENTIFIER               = DEFAULT
++  FLASH_DEFINITION               = Platform/Samsung/exynos7580/exynos7580.fdf
++  DEVICE_DXE_FV_COMPONENTS       = Platform/Samsung/exynos7580/exynos7580.fdf.inc
++  BROKEN_CNTFRQ_EL0              = 1
++  IMPLEMENTS_CUSTOM_RESETLIB	 = 1
++
++!include Platform/Samsung/exynos7580/exynos7580.dsc
++
++[BuildOptions.common]
++  GCC:*_*_AARCH64_CC_FLAGS = -DBROKEN_CNTFRQ_EL0=$(BROKEN_CNTFRQ_EL0)
++
++[PcdsFixedAtBuild.common]
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferWidth|720
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferHeight|1280
++
++  # Simple Init
++  gSimpleInitTokenSpaceGuid.PcdGuiDefaultDPI|240
++
++  gRenegadePkgTokenSpaceGuid.PcdDeviceVendor|"Samsung"
++  gRenegadePkgTokenSpaceGuid.PcdDeviceProduct|"Galaxy J7 (2015)"
++  gRenegadePkgTokenSpaceGuid.PcdDeviceCodeName|"SM-J700F"
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Include/Configuration/DeviceConfigurationMap.h b/Silicon/Samsung/Exynos7580Pkg/Include/Configuration/DeviceConfigurationMap.h
+new file mode 100644
+index 0000000..0036b9a
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Include/Configuration/DeviceConfigurationMap.h
+@@ -0,0 +1,15 @@
++#ifndef _DEVICE_CONFIGURATION_MAP_H_
++#define _DEVICE_CONFIGURATION_MAP_H_
++
++#define CONFIGURATION_NAME_MAX_LENGTH 64
++
++typedef struct {
++  CHAR8                        Name[CONFIGURATION_NAME_MAX_LENGTH];
++  UINT64                       Value;
++} CONFIGURATION_DESCRIPTOR_EX, *PCONFIGURATION_DESCRIPTOR_EX;
++
++static CONFIGURATION_DESCRIPTOR_EX gDeviceConfigurationDescriptorEx[] = {
++    /* Terminator */
++    {"Terminator", 0xFFFFFFFF}};
++
++#endif
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Include/Library/AtomicLib.h b/Silicon/Samsung/Exynos7580Pkg/Include/Library/AtomicLib.h
+new file mode 100644
+index 0000000..1494845
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Include/Library/AtomicLib.h
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (c) 2008-2014 Travis Geiselbrecht
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining
++ * a copy of this software and associated documentation files
++ * (the "Software"), to deal in the Software without restriction,
++ * including without limitation the rights to use, copy, modify, merge,
++ * publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so,
++ * subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be
++ * included in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
++ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ */
++#ifndef __LIB_ATOMIC_H
++#define __LIB_ATOMIC_H
++
++#include <Library/UefiBootServicesTableLib.h>
++
++STATIC inline INTN AtomicAnd(volatile INTN *Address, INTN Value)
++{
++  EFI_TPL OriginalTPL;
++  INTN    OldValue;
++
++  OriginalTPL = gBS->RaiseTPL(TPL_HIGH_LEVEL);
++  OldValue    = *Address;
++  *Address &= Value;
++  gBS->RestoreTPL(OriginalTPL);
++
++  return OldValue;
++}
++
++STATIC inline INTN AtomicOr(volatile INTN *Address, INTN Value)
++{
++  EFI_TPL OriginalTPL;
++  INTN    OldValue;
++
++  OriginalTPL = gBS->RaiseTPL(TPL_HIGH_LEVEL);
++  OldValue    = *Address;
++  *Address |= Value;
++  gBS->RestoreTPL(OriginalTPL);
++
++  return OldValue;
++}
++
++STATIC inline INTN AtomicRead(volatile INTN *Address) { return *Address; }
++
++STATIC inline VOID AtomicSet(volatile INTN *Address, INTN Value)
++{
++  *Address = Value;
++}
++
++#endif
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Include/Library/BitmapLib.h b/Silicon/Samsung/Exynos7580Pkg/Include/Library/BitmapLib.h
+new file mode 100644
+index 0000000..e4afbcc
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Include/Library/BitmapLib.h
+@@ -0,0 +1,65 @@
++/*
++ * Copyright (c) 2008 Travis Geiselbrecht
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining
++ * a copy of this software and associated documentation files
++ * (the "Software"), to deal in the Software without restriction,
++ * including without limitation the rights to use, copy, modify, merge,
++ * publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so,
++ * subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be
++ * included in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
++ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ */
++#ifndef __LIB_BITMAP_H
++#define __LIB_BITMAP_H
++
++#include <Library/AtomicLib.h>
++
++#define BIT_SHIFT(x, bit) (((x) >> (bit)) & 1)
++#define BITS_SHIFT(x, high, low)                                               \
++  (((x) >> (low)) & ((1 << ((high) - (low) + 1)) - 1))
++#define BIT_SET(x, bit) (((x) & (1UL << (bit))) ? 1 : 0)
++
++#define BITMAP_BITS_PER_WORD (sizeof(UINTN) * 8)
++#define BITMAP_NUM_WORDS(x)                                                    \
++  (((x) + BITMAP_BITS_PER_WORD - 1) / BITMAP_BITS_PER_WORD)
++#define BITMAP_WORD(x) ((x) / BITMAP_BITS_PER_WORD)
++#define BITMAP_BIT_IN_WORD(x) ((x) & (BITMAP_BITS_PER_WORD - 1))
++
++#define BITMAP_BITS_PER_INT (sizeof(UINTN) * 8)
++#define BITMAP_BIT_IN_INT(x) ((x) & (BITMAP_BITS_PER_INT - 1))
++#define BITMAP_INT(x) ((x) / BITMAP_BITS_PER_INT)
++
++#define BIT_MASK(x)                                                            \
++  (((x) >= sizeof(UINTN) * 8) ? (0UL - 1) : ((1UL << (x)) - 1))
++
++STATIC inline INTN BitmapSet(UINTN *bitmap, INTN bit)
++{
++  UINTN mask = 1UL << BITMAP_BIT_IN_INT(bit);
++  return AtomicOr(&((INTN *)bitmap)[BITMAP_INT(bit)], mask) & mask ? 1 : 0;
++}
++
++STATIC inline INTN BitmapClear(UINTN *bitmap, INTN bit)
++{
++  UINTN mask = 1UL << BITMAP_BIT_IN_INT(bit);
++
++  return AtomicAnd(&((INTN *)bitmap)[BITMAP_INT(bit)], ~mask) & mask ? 1 : 0;
++}
++
++STATIC inline INTN BitmapTest(UINTN *bitmap, INTN bit)
++{
++  return BIT_SET(bitmap[BITMAP_WORD(bit)], BITMAP_BIT_IN_WORD(bit));
++}
++
++#endif
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Include/Library/KeypadDeviceImplLib.h b/Silicon/Samsung/Exynos7580Pkg/Include/Library/KeypadDeviceImplLib.h
+new file mode 100644
+index 0000000..ebdf0cf
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Include/Library/KeypadDeviceImplLib.h
+@@ -0,0 +1,36 @@
++#ifndef __LIBRARY_KEYPAD_DEVICE_IMPL_H__
++#define __LIBRARY_KEYPAD_DEVICE_IMPL_H__
++
++#include <Protocol/KeypadDevice.h>
++
++EFI_STATUS EFIAPI KeypadDeviceImplReset(KEYPAD_DEVICE_PROTOCOL *This);
++EFI_STATUS        KeypadDeviceImplGetKeys(
++           KEYPAD_DEVICE_PROTOCOL *This, KEYPAD_RETURN_API *KeypadReturnApi,
++           UINT64 Delta);
++
++
++typedef enum {
++  KEYSTATE_RELEASED,
++  KEYSTATE_PRESSED,
++  KEYSTATE_LONGPRESS_RELEASE,
++} KEY_STATE;
++
++typedef struct {
++  // keydata to be send to the driver
++  EFI_KEY_DATA KeyData;
++
++  // the time the current action has been running
++  UINT64 Time;
++
++  // the current state of the key
++  KEY_STATE State;
++
++  // the current key has to repeat sending events
++  BOOLEAN Repeat;
++
++  // the user did a longpress
++  BOOLEAN Longpress;
++} KEY_CONTEXT;
++
++#endif
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Include/Protocol/KeypadDevice.h b/Silicon/Samsung/Exynos7580Pkg/Include/Protocol/KeypadDevice.h
+new file mode 100644
+index 0000000..8e223a1
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Include/Protocol/KeypadDevice.h
+@@ -0,0 +1,37 @@
++#ifndef __PROTOCOL_KEYPAD_DEVICE_H__
++#define __PROTOCOL_KEYPAD_DEVICE_H__
++
++#include <Protocol/SimpleTextInEx.h>
++
++#define KEYPAD_DEVICE_PROTOCOL_GUID                                            \
++  {                                                                            \
++    0xb27625b5, 0x0b6c, 0x4614,                                                \
++    {                                                                          \
++      0xaa, 0x3c, 0x33, 0x13, 0xb5, 0x1d, 0x36, 0x46                           \
++    }                                                                          \
++  }
++
++typedef struct _KEYPAD_DEVICE_PROTOCOL KEYPAD_DEVICE_PROTOCOL;
++typedef struct _KEYPAD_RETURN_API      KEYPAD_RETURN_API;
++
++typedef VOID(EFIAPI *PUSH_EFI_KEY_BUF_TAIL)(
++    KEYPAD_RETURN_API *This, EFI_KEY_DATA *KeyData);
++
++struct _KEYPAD_RETURN_API {
++  PUSH_EFI_KEY_BUF_TAIL PushEfikeyBufTail;
++};
++
++typedef EFI_STATUS(EFIAPI *KEYPAD_RESET)(KEYPAD_DEVICE_PROTOCOL *This);
++typedef EFI_STATUS(EFIAPI *KEYPAD_GET_KEYS)(
++    KEYPAD_DEVICE_PROTOCOL *This, KEYPAD_RETURN_API *KeypadReturnApi,
++    UINT64 Delta);
++
++struct _KEYPAD_DEVICE_PROTOCOL {
++  KEYPAD_RESET    Reset;
++  KEYPAD_GET_KEYS GetKeys;
++};
++
++extern EFI_GUID gExynosKeypadDeviceProtocolGuid;
++
++#endif
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.c b/Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.c
+new file mode 100644
+index 0000000..b6f198a
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.c
+@@ -0,0 +1,279 @@
++#include <Uefi.h>
++#include <Library/BaseMemoryLib.h>
++#include <Library/BitmapLib.h>
++#include <Library/KeypadDeviceImplLib.h>
++#include <Library/UefiLib.h>
++#include <Library/IoLib.h>
++#include <Protocol/KeypadDevice.h>
++#include <Library/DebugLib.h>
++
++typedef struct {
++  KEY_CONTEXT EfiKeyContext;
++  UINT32 PioBase;
++  UINT32 BankOffset;
++  UINT32 PinNum;
++} KEY_CONTEXT_PRIVATE;
++
++
++UINTN gBitmapScanCodes[BITMAP_NUM_WORDS(0x18)]    = {0};
++UINTN gBitmapUnicodeChars[BITMAP_NUM_WORDS(0x7f)] = {0};
++
++
++EFI_KEY_DATA gKeyDataPowerDown = {.Key = {
++                                      .UnicodeChar = (CHAR16)'s',
++                                  }};
++
++EFI_KEY_DATA gKeyDataPowerUp = {.Key = {
++                                    .UnicodeChar = (CHAR16)'e',
++                                }};
++
++EFI_KEY_DATA gKeyDataPowerLongpress = {.Key = {
++                                           .UnicodeChar = (CHAR16)' ',
++                                       }};
++
++
++#define MS2NS(ms) (((UINT64)(ms)) * 1000000ULL)
++
++STATIC inline VOID
++KeySetState(UINT16 ScanCode, CHAR16 UnicodeChar, BOOLEAN Value)
++{
++  if (ScanCode && ScanCode < 0x18) {
++    if (Value)
++      BitmapSet(gBitmapScanCodes, ScanCode);
++    else
++      BitmapClear(gBitmapScanCodes, ScanCode);
++  }
++
++  if (UnicodeChar && UnicodeChar < 0x7f) {
++    if (Value)
++      BitmapSet(gBitmapUnicodeChars, ScanCode);
++    else
++      BitmapClear(gBitmapUnicodeChars, ScanCode);
++  }
++}
++
++STATIC inline BOOLEAN KeyGetState(UINT16 ScanCode, CHAR16 UnicodeChar)
++{
++  if (ScanCode && ScanCode < 0x18) {
++    if (!BitmapTest(gBitmapScanCodes, ScanCode))
++      return FALSE;
++  }
++
++  if (UnicodeChar && UnicodeChar < 0x7f) {
++    if (!BitmapTest(gBitmapUnicodeChars, ScanCode))
++      return FALSE;
++  }
++
++  return TRUE;
++}
++
++STATIC inline VOID LibKeyInitializeKeyContext(KEY_CONTEXT *Context)
++{
++  SetMem(&Context->KeyData, sizeof(Context->KeyData), 0);
++  Context->Time      = 0;
++  Context->State     = KEYSTATE_RELEASED;
++  Context->Repeat    = FALSE;
++  Context->Longpress = FALSE;
++}
++
++STATIC inline VOID LibKeyUpdateKeyStatus(
++    KEY_CONTEXT *Context, KEYPAD_RETURN_API *KeypadReturnApi, BOOLEAN IsPressed,
++    UINT64 Delta)
++{
++  // keep track of the actual state
++  KeySetState(
++      Context->KeyData.Key.ScanCode, Context->KeyData.Key.UnicodeChar,
++      IsPressed);
++
++  // update key time
++  Context->Time += Delta;
++
++  switch (Context->State) {
++  case KEYSTATE_RELEASED:
++    if (IsPressed) {
++      // change to pressed
++      Context->Time  = 0;
++      Context->State = KEYSTATE_PRESSED;
++    }
++    break;
++
++  case KEYSTATE_PRESSED:
++    if (IsPressed) {
++      // keyrepeat
++      if (Context->Repeat && Context->Time >= MS2NS(200)) {
++        KeypadReturnApi->PushEfikeyBufTail(KeypadReturnApi, &Context->KeyData);
++        Context->Time   = 0;
++        Context->Repeat = TRUE;
++      }
++
++      else if (!Context->Longpress && Context->Time >= MS2NS(500)) {
++        // POWER, handle key combos
++        if (Context->KeyData.Key.UnicodeChar == CHAR_CARRIAGE_RETURN) {
++          if (KeyGetState(SCAN_DOWN, 0)) {
++            // report 's'
++            KeypadReturnApi->PushEfikeyBufTail(
++                KeypadReturnApi, &gKeyDataPowerDown);
++          }
++          else if (KeyGetState(SCAN_UP, 0)) {
++            // report 'e'
++            KeypadReturnApi->PushEfikeyBufTail(
++                KeypadReturnApi, &gKeyDataPowerUp);
++          }
++          else {
++            // report spacebar
++            KeypadReturnApi->PushEfikeyBufTail(
++                KeypadReturnApi, &gKeyDataPowerLongpress);
++          }
++        }
++
++        // post first keyrepeat event
++        else {
++          // only start keyrepeat if we're not doing a combo
++          if (!KeyGetState(0, CHAR_CARRIAGE_RETURN)) {
++            KeypadReturnApi->PushEfikeyBufTail(
++                KeypadReturnApi, &Context->KeyData);
++            Context->Time   = 0;
++            Context->Repeat = TRUE;
++          }
++        }
++
++        Context->Longpress = TRUE;
++      }
++    }
++
++    else {
++      if (!Context->Longpress) {
++        // we supressed down, so report it now
++        KeypadReturnApi->PushEfikeyBufTail(KeypadReturnApi, &Context->KeyData);
++        Context->State = KEYSTATE_LONGPRESS_RELEASE;
++      }
++
++      else if (Context->Time >= MS2NS(10)) {
++        // we reported another key already
++        Context->Time      = 0;
++        Context->Repeat    = FALSE;
++        Context->Longpress = FALSE;
++        Context->State     = KEYSTATE_RELEASED;
++      }
++    }
++    break;
++
++  case KEYSTATE_LONGPRESS_RELEASE:
++    // change to released
++    Context->Time      = 0;
++    Context->Repeat    = FALSE;
++    Context->Longpress = FALSE;
++    Context->State     = KEYSTATE_RELEASED;
++    break;
++
++  default:
++    ASSERT(FALSE);
++    break;
++  }
++}
++
++
++STATIC KEY_CONTEXT_PRIVATE KeyContextPower;
++STATIC KEY_CONTEXT_PRIVATE KeyContextVolumeUp;
++STATIC KEY_CONTEXT_PRIVATE KeyContextVolumeDown;
++
++STATIC KEY_CONTEXT_PRIVATE *KeyList[] = { &KeyContextVolumeDown, &KeyContextVolumeUp, &KeyContextPower };
++
++STATIC
++VOID KeypadInitializeKeyContextPrivate(KEY_CONTEXT_PRIVATE *Context)
++{
++  Context->PioBase    = 0;
++  Context->BankOffset = 0;
++  Context->PinNum     = 0;
++}
++
++STATIC
++KEY_CONTEXT_PRIVATE *KeypadKeyCodeToKeyContext(UINT32 KeyCode)
++{
++  if (KeyCode == 114)
++    return &KeyContextVolumeDown;
++  else if (KeyCode == 115)
++    return &KeyContextVolumeUp;
++  else if (KeyCode == 116)
++    return &KeyContextPower;
++  else
++    return NULL;
++}
++
++RETURN_STATUS
++EFIAPI
++KeypadDeviceImplConstructor(VOID)
++{
++  UINTN                Index;
++  KEY_CONTEXT_PRIVATE *StaticContext;
++
++  // Reset all keys
++  for (Index = 0; Index < (sizeof(KeyList) / sizeof(KeyList[0])); Index++) {
++    KeypadInitializeKeyContextPrivate(KeyList[Index]);
++  }
++
++  // Configure keys
++
++  // J7 DTS gpio-keys, bank gpa2 in pinctrl@139B0000 (bank offset 0x040)
++  // vol down (gpa2-1)
++  StaticContext             = KeypadKeyCodeToKeyContext(114);
++  StaticContext->PioBase    = 0x139B0000;
++  StaticContext->BankOffset = 0x040;
++  StaticContext->PinNum     = 1;
++
++  // vol up (gpa2-0)
++  StaticContext             = KeypadKeyCodeToKeyContext(115);
++  StaticContext->PioBase    = 0x139B0000;
++  StaticContext->BankOffset = 0x040;
++  StaticContext->PinNum     = 0;
++
++  // power (gpa2-7)
++  StaticContext             = KeypadKeyCodeToKeyContext(116);
++  StaticContext->PioBase    = 0x139B0000;
++  StaticContext->BankOffset = 0x040;
++  StaticContext->PinNum     = 7;
++
++  return RETURN_SUCCESS;
++}
++
++EFI_STATUS EFIAPI KeypadDeviceImplReset(KEYPAD_DEVICE_PROTOCOL *This)
++{
++  LibKeyInitializeKeyContext(&KeyContextVolumeDown.EfiKeyContext);
++  KeyContextVolumeDown.EfiKeyContext.KeyData.Key.ScanCode = SCAN_DOWN;
++
++  LibKeyInitializeKeyContext(&KeyContextVolumeUp.EfiKeyContext);
++  KeyContextVolumeUp.EfiKeyContext.KeyData.Key.ScanCode = SCAN_UP;
++
++  LibKeyInitializeKeyContext(&KeyContextPower.EfiKeyContext);
++  KeyContextPower.EfiKeyContext.KeyData.Key.UnicodeChar = CHAR_CARRIAGE_RETURN;
++
++  return EFI_SUCCESS;
++}
++
++EFI_STATUS KeypadDeviceImplGetKeys(
++    KEYPAD_DEVICE_PROTOCOL *This, KEYPAD_RETURN_API *KeypadReturnApi,
++    UINT64 Delta)
++{
++    BOOLEAN IsPressed;
++    UINTN Index;
++
++    for (Index = 0; Index < (sizeof(KeyList) / sizeof(KeyList[0])); Index++) {
++        KEY_CONTEXT_PRIVATE *Context = KeyList[Index];
++
++        IsPressed = FALSE;
++
++  		UINT32 PinAddr = ((Context->PioBase + Context->BankOffset) + 0x4);
++
++        UINT32 PinState = MmioRead32(PinAddr);
++
++        if ( !(PinState & (1 << Context->PinNum)) ) {
++        	IsPressed = TRUE;
++        }
++
++        LibKeyUpdateKeyStatus(
++            &Context->EfiKeyContext, KeypadReturnApi, IsPressed, Delta);
++    }
++
++    return EFI_SUCCESS;
++}
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
+new file mode 100644
+index 0000000..80df9c9
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/KeypadDeviceImplLib/KeypadDeviceImplLib.inf
+@@ -0,0 +1,20 @@
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = KeypadDeviceImplLib
++  FILE_GUID                      = A66E6466-0BF1-4211-8CD9-9FBCD1F460A6
++  MODULE_TYPE                    = BASE
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = KeypadDeviceImplLib
++  CONSTRUCTOR                    = KeypadDeviceImplConstructor
++
++[Sources.common]
++  KeypadDeviceImplLib.c
++
++[Packages]
++  MdePkg/MdePkg.dec
++  ArmPkg/ArmPkg.dec
++  Silicon/Samsung/Exynos7580Pkg/exynos7580.dec
++
++[LibraryClasses]
++  TimerLib
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.c b/Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.c
+new file mode 100644
+index 0000000..d5db723
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.c
+@@ -0,0 +1,35 @@
++/** @file
++ *MsPlatformDevicesLib  - Device specific library.
++
++Copyright (C) Microsoft Corporation. All rights reserved.
++SPDX-License-Identifier: BSD-2-Clause-Patent
++
++**/
++
++#include <Uefi.h>
++
++#include <Protocol/DevicePath.h>
++
++#include <Library/BaseMemoryLib.h>
++#include <Library/DebugLib.h>
++#include <Library/DevicePathLib.h>
++#include <Library/IoLib.h>
++#include <Library/MsPlatformDevicesLib.h>
++#include <Library/PcdLib.h>
++#include <Library/UefiBootServicesTableLib.h>
++#include <Library/UefiLib.h>
++// #include <Library/AslUpdateLib.h>
++#include <Library/MemoryMapHelperLib.h>
++
++VOID
++EFIAPI
++PlatformSetup()
++{
++  // Allow MPSS and HLOS to access the allocated RFS Shared Memory Region
++  // Normally this would be done by a driver in Linux
++  // TODO: Move to a better place!
++  // RFSLocateAndProtectSharedArea();
++
++  // Patch ACPI Tables
++  // PlatformUpdateAcpiTables();
++}
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf
+new file mode 100644
+index 0000000..2a58cdd
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf
+@@ -0,0 +1,43 @@
++## @file
++# Ms Platform Devices Library
++# Ported from SurfaceDuoPkg
++# 
++# Copyright (c) DuoWoA authors. All rights reserved.
++# Copyright (C) Microsoft Corporation. All rights reserved.
++# SPDX-License-Identifier: BSD-2-Clause-Patent
++##
++
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = MsPlatformDevicesLib
++  FILE_GUID                      = 2FDF4E63-5AD5-4385-A729-868019B45A91
++  MODULE_TYPE                    = DXE_DRIVER
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = MsPlatformDevicesLib|DXE_DRIVER DXE_RUNTIME_DRIVER UEFI_APPLICATION
++
++#
++#  VALID_ARCHITECTURES           = IA32 X64
++#
++
++[Sources]
++  MsPlatformDevicesLib.c
++
++[Packages]
++  ArmPkg/ArmPkg.dec
++  MdePkg/MdePkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  Platform/RenegadePkg/RenegadePkg.dec
++  Silicon/Samsung/ExynosPkg/ExynosPkg.dec
++  Silicon/Samsung/Exynos7885Pkg/exynos7885.dec
++
++[LibraryClasses]
++  BaseMemoryLib
++  DebugLib
++  DevicePathLib
++  IoLib
++  UefiBootServicesTableLib
++  UefiLib
++  # AslUpdateLib
++  # RFSProtectionLib
++  MemoryMapHelperLib
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.c b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.c
+new file mode 100644
+index 0000000..cc481e1
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.c
+@@ -0,0 +1,35 @@
++#include <Library/BaseLib.h>
++#include <Library/PlatformMemoryMapLib.h>
++
++/*
++ * Galaxy J7 (2015), Exynos 7580. DRAM 0x40000000-0xA0000000 (1.5 GB).
++ * 0x90000000-0xA0000000 is memreserve/reserved-memory in the stock DTS, so only
++ * 0x40000000-0x90000000 is described here. No regions may overlap.
++ * Source: exynos7580-j7elte_rev06.dts (see DEVICE_MAP.md).
++ */
++static ARM_MEMORY_REGION_DESCRIPTOR_EX gDeviceMemoryDescriptorEx[] = {
++/*                                                    EFI_RESOURCE_ EFI_RESOURCE_ATTRIBUTE_ EFI_MEMORY_TYPE ARM_REGION_ATTRIBUTE_
++     MemLabel(32 Char.),  MemBase,    MemSize, BuildHob, ResourceType, ResourceAttribute, MemoryType, CacheAttributes
++*/
++
++//--------------------- Register ---------------------
++    {"Periphs",           0x00000000, 0x20000000,  AddMem, MEM_RES, UNCACHEABLE,  RtCode,   NS_DEVICE},
++
++//--------------------- DDR --------------------- */
++
++    {"HLOS 0",            0x40000000, 0x00C00000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
++    {"UEFI Stack",        0x40C00000, 0x00040000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
++    {"CPU Vectors",       0x40C40000, 0x00010000, AddMem, SYS_MEM, SYS_MEM_CAP, BsCode, WRITE_BACK},
++    {"HLOS 0 Split",      0x40C50000, 0x0F3B0000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
++    {"UEFI FD",           0x50000000, 0x00700000, AddMem, SYS_MEM, SYS_MEM_CAP, BsCode, WRITE_BACK},
++    {"HLOS 0 Split 2",    0x50700000, 0x16900000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
++    {"Display Reserved",  0x67000000, 0x00400000, AddMem, MEM_RES, SYS_MEM_CAP, Reserv, WRITE_THROUGH_XN},
++    {"HLOS 0 Split 3",    0x67400000, 0x28C00000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
++
++    /* Terminator for MMU */
++    { "Terminator", 0, 0, 0, 0, 0, 0, 0}};
++
++ARM_MEMORY_REGION_DESCRIPTOR_EX *GetPlatformMemoryMap()
++{
++  return gDeviceMemoryDescriptorEx;
++}
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.inf
+new file mode 100644
+index 0000000..56a597e
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformMemoryMapLib/PlatformMemoryMapLib.inf
+@@ -0,0 +1,27 @@
++## @file
++# PlatformMemoryMapLib
++# 
++# Copyright (c) DuoWoA authors. All rights reserved.
++# Copyright (c) Renegade Project. All rights reserved.
++# SPDX-License-Identifier: BSD-2-Clause-Patent
++##
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = PlatformMemoryMapLib
++  FILE_GUID                      = 59C11815-F8DA-4F49-B4FB-EC1E41ED1F01
++  MODULE_TYPE                    = BASE
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = PlatformMemoryMapLib
++
++[Sources]
++  PlatformMemoryMapLib.c
++
++[Packages]
++  ArmPkg/ArmPkg.dec
++  MdePkg/MdePkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  EmbeddedPkg/EmbeddedPkg.dec
++  Silicon/Samsung/ExynosPkg/ExynosPkg.dec
++
++[LibraryClasses]
++  BaseLib
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.c b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.c
+new file mode 100644
+index 0000000..ddfae0c
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.c
+@@ -0,0 +1,188 @@
++/** @file
++
++  Copyright (c) 2011-2014, ARM Limited. All rights reserved.
++  Copyright (c) 2014, Linaro Limited. All rights reserved.
++
++  SPDX-License-Identifier: BSD-2-Clause-Patent
++
++**/
++
++#include <PiPei.h>
++
++#include <Library/DebugLib.h>
++#include <Library/HobLib.h>
++#include <Library/MemoryAllocationLib.h>
++#include <Library/PcdLib.h>
++#include "PlatformPeiLibInternal.h"
++
++STATIC
++EFI_STATUS
++CfgGetMemInfoByName(
++    CHAR8 *RegionName, ARM_MEMORY_REGION_DESCRIPTOR_EX *MemRegions)
++{
++  return LocateMemoryMapAreaByName(RegionName, MemRegions);
++}
++
++STATIC
++EFI_STATUS
++CfgGetMemInfoByAddress(
++    UINT64 RegionBaseAddress, ARM_MEMORY_REGION_DESCRIPTOR_EX *MemRegions)
++{
++  return LocateMemoryMapAreaByAddress(RegionBaseAddress, MemRegions);
++}
++
++STATIC
++EFI_STATUS
++CfgGetCfgInfoString(CHAR8 *Key, CHAR8 *Value, UINTN *ValBuffSize)
++{
++  if (AsciiStriCmp(Key, "OsTypeString") == 0) {
++    AsciiStrCpyS(Value, *ValBuffSize, "LA");
++    return EFI_SUCCESS;
++  }
++
++  return EFI_NOT_FOUND;
++}
++
++STATIC
++EFI_STATUS
++CfgGetCfgInfoVal(CHAR8 *Key, UINT32 *Value)
++{
++  PCONFIGURATION_DESCRIPTOR_EX ConfigurationDescriptorEx =
++      gDeviceConfigurationDescriptorEx;
++
++  // Run through each configuration descriptor
++  while (ConfigurationDescriptorEx->Value != 0xFFFFFFFF) {
++    if (AsciiStriCmp(Key, ConfigurationDescriptorEx->Name) == 0) {
++      *Value = (UINT32)(ConfigurationDescriptorEx->Value & 0xFFFFFFFF);
++      return EFI_SUCCESS;
++    }
++    ConfigurationDescriptorEx++;
++  }
++
++  return EFI_NOT_FOUND;
++}
++
++STATIC
++EFI_STATUS
++CfgGetCfgInfoVal64(CHAR8 *Key, UINT64 *Value)
++{
++  PCONFIGURATION_DESCRIPTOR_EX ConfigurationDescriptorEx =
++      gDeviceConfigurationDescriptorEx;
++
++  // Run through each configuration descriptor
++  while (ConfigurationDescriptorEx->Value != 0xFFFFFFFF) {
++    if (AsciiStriCmp(Key, ConfigurationDescriptorEx->Name) == 0) {
++      *Value = ConfigurationDescriptorEx->Value;
++      return EFI_SUCCESS;
++    }
++    ConfigurationDescriptorEx++;
++  }
++
++  return EFI_NOT_FOUND;
++}
++
++STATIC
++UINTN
++SFlush(VOID) { return EFI_SUCCESS; }
++
++STATIC
++UINTN
++SControl(IN UINTN Arg, IN UINTN Param) { return EFI_SUCCESS; }
++
++STATIC
++BOOLEAN
++SPoll(VOID) { return TRUE; }
++
++STATIC
++UINTN
++SDrain(VOID) { return EFI_SUCCESS; }
++
++STATIC
++EFI_STATUS
++ShInstallLib(IN CHAR8 *LibName, IN UINT32 LibVersion, IN VOID *LibIntf)
++{
++  return EFI_SUCCESS;
++}
++
++UefiCfgLibType ConfigLib = {0x00010002,          CfgGetMemInfoByName,
++                            CfgGetCfgInfoString, CfgGetCfgInfoVal,
++                            CfgGetCfgInfoVal64,  CfgGetMemInfoByAddress};
++
++SioPortLibType SioLib = {
++    0x00010001, SerialPortRead, SerialPortWrite, SPoll,
++    SDrain,     SFlush,         SControl,        SerialPortSetAttributes,
++};
++
++STATIC
++EFI_STATUS
++ShLoadLib(CHAR8 *LibName, UINT32 LibVersion, VOID **LibIntf)
++{
++  if (LibIntf == NULL)
++    return EFI_NOT_FOUND;
++
++  if (AsciiStriCmp(LibName, "UEFI Config Lib") == 0) {
++    *LibIntf = &ConfigLib;
++    return EFI_SUCCESS;
++  }
++
++  if (AsciiStriCmp(LibName, "SerialPort Lib") == 0) {
++    *LibIntf = &SioLib;
++    return EFI_SUCCESS;
++  }
++
++  return EFI_NOT_FOUND;
++}
++
++ShLibLoaderType ShLib = {0x00010001, ShInstallLib, ShLoadLib};
++
++STATIC
++VOID BuildMemHobForFv(IN UINT16 Type)
++{
++  EFI_PEI_HOB_POINTERS      HobPtr;
++  EFI_HOB_FIRMWARE_VOLUME2 *Hob = NULL;
++
++  HobPtr.Raw = GetHobList();
++  while ((HobPtr.Raw = GetNextHob(Type, HobPtr.Raw)) != NULL) {
++    if (Type == EFI_HOB_TYPE_FV2) {
++      Hob = HobPtr.FirmwareVolume2;
++      /* Build memory allocation HOB to mark it as BootServicesData */
++      BuildMemoryAllocationHob(
++          Hob->BaseAddress, EFI_SIZE_TO_PAGES(Hob->Length) * EFI_PAGE_SIZE,
++          EfiBootServicesData);
++    }
++    HobPtr.Raw = GET_NEXT_HOB(HobPtr);
++  }
++}
++
++STATIC GUID gEfiShLibHobGuid   = EFI_SHIM_LIBRARY_GUID;
++STATIC GUID gEfiInfoBlkHobGuid = EFI_INFORMATION_BLOCK_GUID;
++
++VOID InstallPlatformHob()
++{
++  static int initialized = 0;
++
++  if (!initialized) {
++    UINTN Data  = (UINTN)&ShLib;
++    UINTN Data2 = 0x5FFFF000; // Info Blk
++
++    BuildMemHobForFv(EFI_HOB_TYPE_FV2);
++    BuildGuidDataHob(&gEfiShLibHobGuid, &Data, sizeof(Data));
++    BuildGuidDataHob(&gEfiInfoBlkHobGuid, &Data2, sizeof(Data2));
++
++    initialized = 1;
++  }
++}
++
++EFI_STATUS
++EFIAPI
++PlatformPeim(
++  VOID
++  )
++{
++
++  BuildFvHob(PcdGet64(PcdFvBaseAddress), PcdGet32(PcdFvSize));
++
++  InstallPlatformHob();
++
++  return EFI_SUCCESS;
++}
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.inf
+new file mode 100644
+index 0000000..ba2485d
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLib.inf
+@@ -0,0 +1,47 @@
++#/** @file
++#
++#  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
++#  Copyright (c) 2014, Linaro Limited. All rights reserved.
++#
++#  SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++#**/
++
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = PlatformPeiLib
++  FILE_GUID                      = 59C11815-F8DA-4F49-B4FB-EC1E41ED1F06
++  MODULE_TYPE                    = SEC
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = PlatformPeiLib
++
++[Sources]
++  PlatformPeiLib.c
++
++[Packages]
++  ArmPkg/ArmPkg.dec
++  MdePkg/MdePkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  EmbeddedPkg/EmbeddedPkg.dec
++  Silicon/Samsung/ExynosPkg/ExynosPkg.dec
++  Silicon/Samsung/Exynos7885Pkg/exynos7885.dec
++
++[LibraryClasses]
++  ArmLib
++  ArmMmuLib
++  BaseLib
++  DebugLib
++  HobLib
++  IoLib
++  MemoryAllocationLib
++  SerialPortLib
++  MemoryMapHelperLib
++
++[FixedPcd]
++  gArmTokenSpaceGuid.PcdFvSize
++
++[Pcd]
++  gArmTokenSpaceGuid.PcdFvBaseAddress
++
++[Depex]
++  gEfiPeiMemoryDiscoveredPpiGuid
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLibInternal.h b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLibInternal.h
+new file mode 100644
+index 0000000..03b80be
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPeiLib/PlatformPeiLibInternal.h
+@@ -0,0 +1,87 @@
++#ifndef __PLATFORM_HOB_INTERNAL_H
++#define __PLATFORM_HOB_INTERNAL_H
++
++#include <Library/ArmLib.h>
++#include <Library/BaseMemoryLib.h>
++#include <Library/DebugLib.h>
++#include <Library/HobLib.h>
++#include <Library/IoLib.h>
++#include <Library/MemoryAllocationLib.h>
++#include <Library/PcdLib.h>
++#include <Library/SerialPortLib.h>
++#include <Library/MemoryMapHelperLib.h>
++
++// This varies by device
++#include <Configuration/DeviceConfigurationMap.h>
++
++typedef EFI_STATUS (*GET_CONFIG_STRING)(
++    CHAR8 *Key, CHAR8 *Value, UINTN *ValBuffSize);
++typedef EFI_STATUS (*GET_CONFIG_VAL)(CHAR8 *Key, UINT32 *Value);
++typedef EFI_STATUS (*GET_CONFIG_VAL64)(CHAR8 *Key, UINT64 *Value);
++
++typedef EFI_STATUS (*GET_MEM_INFO_BY_NAME)(
++    CHAR8 *RegionName, ARM_MEMORY_REGION_DESCRIPTOR_EX *MemRegions);
++
++typedef EFI_STATUS (*GET_MEM_INFO_BY_ADDRESS)(
++    UINT64 RegionBaseAddress, ARM_MEMORY_REGION_DESCRIPTOR_EX *MemRegions);
++
++typedef struct {
++  UINT32 LibVersion;
++  GET_MEM_INFO_BY_NAME GetMemInfoByName;
++  GET_CONFIG_STRING GetCfgInfoString;
++  GET_CONFIG_VAL GetCfgInfoVal;
++  GET_CONFIG_VAL64 GetCfgInfoVal64;
++  GET_MEM_INFO_BY_ADDRESS GetMemInfoByAddress;
++} UefiCfgLibType;
++
++typedef UINTN (*SIO_READ)(OUT UINT8 *Buffer, IN UINTN NumberOfBytes);
++typedef UINTN (*SIO_WRITE)(IN UINT8 *Buffer, IN UINTN NumberOfBytes);
++typedef BOOLEAN (*SIO_POLL)(VOID);
++typedef UINTN (*SIO_DRAIN)(VOID);
++typedef UINTN (*SIO_FLUSH)(VOID);
++typedef UINTN (*SIO_CONTROL)(IN UINTN Arg, IN UINTN Param);
++typedef EFI_STATUS (*SIO_SETATTRIBUTES)(
++    IN OUT UINT64 *BaudRate, IN OUT UINT32 *ReceiveFifoDepth,
++    IN OUT UINT32 *Timeout, IN OUT EFI_PARITY_TYPE *Parity,
++    IN OUT UINT8 *DataBits, IN OUT EFI_STOP_BITS_TYPE *StopBits);
++
++typedef struct {
++  UINT32            LibVersion;
++  SIO_READ          Read;
++  SIO_WRITE         Write;
++  SIO_POLL          Poll;
++  SIO_DRAIN         Drain;
++  SIO_FLUSH         Flush;
++  SIO_CONTROL       Control;
++  SIO_SETATTRIBUTES SetAttributes;
++} SioPortLibType;
++
++typedef EFI_STATUS (*INSTALL_LIB)(
++    IN CHAR8 *LibName, IN UINT32 LibVersion, IN VOID *LibIntf);
++
++typedef EFI_STATUS (*LOAD_LIB)(
++    IN CHAR8 *LibName, IN UINT32 LibVersion, OUT VOID **LibIntfPtr);
++
++typedef struct {
++  UINT32      LoaderVersion;
++  INSTALL_LIB InstallLib;
++  LOAD_LIB    LoadLib;
++} ShLibLoaderType;
++
++#define EFI_SHIM_LIBRARY_GUID                                                  \
++  {                                                                            \
++    0xbedaeabc, 0x5e70, 0x4d66,                                                \
++    {                                                                          \
++      0x97, 0x33, 0x21, 0x3d, 0x07, 0x2b, 0x9d, 0x04                           \
++    }                                                                          \
++  }
++
++#define EFI_INFORMATION_BLOCK_GUID                                                  \
++  {                                                                            \
++    0x90a49afd, 0x422f, 0x08ae,                                                \
++    {                                                                          \
++      0x96, 0x11, 0xe7, 0x88, 0xd3, 0x80, 0x48, 0x45                           \
++    }                                                                          \
++  }
++
++#endif // __PLATFORM_HOB_INTERNAL_H
+\ No newline at end of file
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformPrePiLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformPrePiLib.inf
+new file mode 100644
+index 0000000..e08842e
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformPrePiLib.inf
+@@ -0,0 +1,62 @@
++#/** @file
++#  
++#  Copyright (c) DuoWoA authors. All rights reserved.
++#  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
++#  Copyright (c) 2014, Linaro Limited. All rights reserved.
++#
++#  SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++#**/
++
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = PlatformPrePiLib
++  FILE_GUID                      = 59C11815-F8DA-4F49-B4FB-EC1E41ED1F07
++  MODULE_TYPE                    = SEC
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = PlatformPrePiLib
++
++[Sources]
++  PlatformUtils.c
++
++[Packages]
++  MdePkg/MdePkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  EmbeddedPkg/EmbeddedPkg.dec
++  ArmPkg/ArmPkg.dec
++  Silicon/Samsung/ExynosPkg/ExynosPkg.dec
++  Silicon/Samsung/Exynos7885Pkg/exynos7885.dec
++
++[LibraryClasses]
++  ArmLib
++  ArmMmuLib
++  BaseLib
++  DebugLib
++  IoLib
++  ExtractGuidedSectionLib
++  LzmaDecompressLib
++  PeCoffGetEntryPointLib
++  PrePiHobListPointerLib
++  CacheMaintenanceLib
++  DebugAgentLib
++  SerialPortLib
++  MemoryAllocationLib
++  PrePiMemoryAllocationLib
++  PerformanceLib
++  HobLib
++  CompilerIntrinsicsLib
++  # Platform-specific libraries
++  MemoryInitPeiLib
++  PlatformPrePiLib
++  TimerLib
++  PrintLib
++  MemoryMapHelperLib
++
++[Pcd]
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
++
++[FixedPcd]
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferAddress
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferWidth
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferHeight
++  gSamsungTokenSpaceGuid.PcdMipiFrameBufferPixelBpp
+\ No newline at end of file
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformUtils.c b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformUtils.c
+new file mode 100644
+index 0000000..d8a8af8
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformUtils.c
+@@ -0,0 +1,57 @@
++#include <Library/PcdLib.h>
++#include <Library/ArmLib.h>
++#include <Library/BaseMemoryLib.h>
++#include <Library/DebugLib.h>
++#include <Library/IoLib.h>
++#include <Library/MemoryAllocationLib.h>
++#include <Library/HobLib.h>
++#include <Library/SerialPortLib.h>
++#include <Library/PrintLib.h>
++#include <Library/BaseLib.h>
++#include <Library/MemoryMapHelperLib.h>
++#include <Library/PlatformPrePiLib.h>
++
++#include "PlatformUtils.h"
++
++
++VOID InitializeSharedUartBuffers(VOID)
++{
++  INTN* pFbConPosition = (INTN*)(FixedPcdGet32(PcdMipiFrameBufferAddress) + (FixedPcdGet32(PcdMipiFrameBufferWidth) * 
++                                                                              FixedPcdGet32(PcdMipiFrameBufferHeight) * 
++                                                                              FixedPcdGet32(PcdMipiFrameBufferPixelBpp) / 8));
++
++  *(pFbConPosition + 0) = 0;
++  *(pFbConPosition + 1) = 0;
++}
++
++VOID UartInit(VOID)
++{
++  SerialPortInitialize();
++
++  InitializeSharedUartBuffers();
++
++  DEBUG((EFI_D_INFO, "\nProjectEku edk2-exynos (AArch64)\n"));
++  DEBUG(
++      (EFI_D_INFO, "Firmware version %s built %a %a\n\n",
++       (CHAR16 *)PcdGetPtr(PcdFirmwareVersionString), __TIME__, __DATE__));
++}
++
++#define J7_DECON_F_BASE             0x14830000
++#define J7_DECON_HW_SW_TRIG_CONTROL 0x6b0
++
++VOID PlatformInitialize()
++{
++  /*
++   * S-Boot leaves the DECON trigger control unset, so the framebuffer would not refresh.
++   * Same offset (0x6b0) and value (0x2058) as uniLoader's board-a3xelte.c (Exynos 7580,
++   * DECON_F at 0x14830000, identical to the J7 DTS) and as the S6 port (0x13930000 + 0x6b0).
++   * An earlier revision of this port removed it as a "blind write"; that was wrong.
++   */
++  MmioWrite32(J7_DECON_F_BASE + J7_DECON_HW_SW_TRIG_CONTROL, 0x2058);
++
++  ZeroMem((VOID *)(UINTN)FixedPcdGet32(PcdMipiFrameBufferAddress),
++          FixedPcdGet32(PcdMipiFrameBufferWidth) * FixedPcdGet32(PcdMipiFrameBufferHeight) *
++          FixedPcdGet32(PcdMipiFrameBufferPixelBpp) / 8);
++
++  UartInit();
++}
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformUtils.h b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformUtils.h
+new file mode 100644
+index 0000000..d38d7c4
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/PlatformPrePiLib/PlatformUtils.h
+@@ -0,0 +1,8 @@
++#ifndef _PLATFORM_UTILS_H_
++#define _PLATFORM_UTILS_H_
++
++#include <Library/PcdLib.h>
++
++VOID PlatformInitialize();
++
++#endif /* _PLATFORM_UTILS_H_ */
+\ No newline at end of file
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.c b/Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.c
+new file mode 100644
+index 0000000..8cba860
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.c
+@@ -0,0 +1,142 @@
++/** @file
++  ResetSystemLib implementation using PSCI calls
++  Copyright (c) 2017 - 2018, Linaro Ltd. All rights reserved.<BR>
++  Copyright (c) 2019, Intel Corporation. All rights reserved.<BR>
++  Copyright (c) 2022, Arm Limited. All rights reserved.<BR>
++  SPDX-License-Identifier: BSD-2-Clause-Patent
++**/
++#include <PiDxe.h>
++
++#include <Library/ArmLib.h>
++#include <Library/BaseLib.h>
++#include <Library/MemoryAllocationLib.h>
++#include <Library/PcdLib.h>
++#include <Library/IoLib.h>
++#include <Library/DebugLib.h>
++#include <Library/ResetSystemLib.h>
++#include <Library/UefiBootServicesTableLib.h>
++#include <Library/CacheMaintenanceLib.h>
++
++
++
++#define PMU_BASE (0x10480000)   /* Exynos 7580 PMU, exynos7580.dtsi */
++#define SWRESET_OFFSET (0x400)
++#define PS_HOLD_CONTROL (0x330C)
++
++/**
++  This function causes a system-wide reset (cold reset), in which
++  all circuitry within the system returns to its initial state. This type of reset
++  is asynchronous to system operation and operates without regard to
++  cycle boundaries.
++  If this function returns, it means that the system does not support cold reset.
++**/
++VOID
++EFIAPI
++ResetCold (
++  VOID
++  )
++{
++  DEBUG ((EFI_D_ERROR, "ResetSystemLib: Cold reset!"));
++  MmioWrite32 ((PMU_BASE + SWRESET_OFFSET), 0x01);
++  while ((MmioRead32(PMU_BASE + SWRESET_OFFSET)) != 0x1);
++}
++
++/**
++  This function causes a system-wide initialization (warm reset), in which all processors
++  are set to their initial state. Pending cycles are not corrupted.
++  If this function returns, it means that the system does not support warm reset.
++**/
++VOID
++EFIAPI
++ResetWarm (
++  VOID
++  )
++{
++  DEBUG ((EFI_D_ERROR, "ResetSystemLib: Warm Reset!"));
++  ResetCold(); // fix later
++}
++
++/**
++  This function causes the system to enter a power state equivalent
++  to the ACPI G2/S5 or G3 states.
++  If this function returns, it means that the system does not support shutdown reset.
++**/
++VOID
++EFIAPI
++ResetShutdown (
++  VOID
++  )
++{
++  DEBUG ((EFI_D_ERROR, "ResetSystemLib: Shutting down!"));
++  MmioWrite32(PMU_BASE + PS_HOLD_CONTROL, MmioRead32(PMU_BASE + PS_HOLD_CONTROL) & 0xFFFFFEFF);
++}
++
++/**
++  This function causes a systemwide reset. The exact type of the reset is
++  defined by the EFI_GUID that follows the Null-terminated Unicode string passed
++  into ResetData. If the platform does not recognize the EFI_GUID in ResetData
++  the platform must pick a supported reset type to perform.The platform may
++  optionally log the parameters from any non-normal reset that occurs.
++  @param[in]  DataSize   The size, in bytes, of ResetData.
++  @param[in]  ResetData  The data buffer starts with a Null-terminated string,
++                         followed by the EFI_GUID.
++**/
++VOID
++EFIAPI
++ResetPlatformSpecific (
++  IN UINTN  DataSize,
++  IN VOID   *ResetData
++  )
++{
++  //	if (!strcmp(cmd, "charge")) {
++	//	__raw_writel(REBOOT_MODE_CHARGE, addr);
++	//} else if (!strcmp(cmd, "fastboot") || !strcmp(cmd, "fb")) {
++	//	__raw_writel(REBOOT_MODE_FASTBOOT, addr);
++	//} else if (!strcmp(cmd, "bootloader") || !strcmp(cmd, "bl")) {
++	//	__raw_writel(REBOOT_MODE_BOOTLOADER, addr);
++	//} else if (!strcmp(cmd, "recovery")) {
++	//	__raw_writel(REBOOT_MODE_RECOVERY, addr);
++	//}
++}
++
++/**
++  The ResetSystem function resets the entire platform.
++  @param[in] ResetType      The type of reset to perform.
++  @param[in] ResetStatus    The status code for the reset.
++  @param[in] DataSize       The size, in bytes, of ResetData.
++  @param[in] ResetData      For a ResetType of EfiResetCold, EfiResetWarm, or EfiResetShutdown
++                            the data buffer starts with a Null-terminated string, optionally
++                            followed by additional binary data. The string is a description
++                            that the caller may use to further indicate the reason for the
++                            system reset.
++**/
++VOID
++EFIAPI
++ResetSystem (
++  IN EFI_RESET_TYPE  ResetType,
++  IN EFI_STATUS      ResetStatus,
++  IN UINTN           DataSize,
++  IN VOID            *ResetData OPTIONAL
++  )
++{
++  switch (ResetType) {
++    case EfiResetWarm:
++      ResetWarm ();
++      break;
++
++    case EfiResetCold:
++      ResetCold ();
++      break;
++
++    case EfiResetShutdown:
++      ResetShutdown ();
++      return;
++
++    case EfiResetPlatformSpecific:
++      ResetPlatformSpecific (DataSize, ResetData);
++      return;
++
++    default:
++      return;
++  }
++}
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.inf
+new file mode 100644
+index 0000000..a025981
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/ResetSystemLib/ResetSystemLib.inf
+@@ -0,0 +1,38 @@
++#/** @file
++# Reset System lib using PSCI hypervisor or secure monitor calls
++#
++# Copyright (c) 2008, Apple Inc. All rights reserved.<BR>
++# Copyright (c) 2014, Linaro Ltd. All rights reserved.<BR>
++# Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
++#
++#  SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++#
++#**/
++
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = ResetSystemLib
++  FILE_GUID                      = A8F59B69-A105-41C7-8F5A-2C60DD7FD7AA
++  MODULE_TYPE                    = BASE
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = ResetSystemLib
++
++[Sources]
++  ResetSystemLib.c
++
++[Packages]
++  ArmPkg/ArmPkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  MdePkg/MdePkg.dec
++
++[LibraryClasses]
++  ArmLib
++  IoLib
++  BaseLib
++  DebugLib
++  MemoryAllocationLib
++  CacheMaintenanceLib
++
++[FixedPcd]
++  gArmTokenSpaceGuid.PcdFvBaseAddress 
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfo.c b/Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfo.c
+new file mode 100644
+index 0000000..8cadd05
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfo.c
+@@ -0,0 +1,500 @@
++#include <Base.h>
++#include <Guid/SmBios.h>
++#include <IndustryStandard/SmBios.h>
++#include <Protocol/Smbios.h>
++#include <Library/SOCSmbiosInfoLib.h>
++
++/***********************************************************************
++        SMBIOS data definition  TYPE4  Processor Information
++************************************************************************/
++SMBIOS_TABLE_TYPE4 mProcessorInfoType4_a73 = {
++    {EFI_SMBIOS_TYPE_PROCESSOR_INFORMATION, sizeof(SMBIOS_TABLE_TYPE4), 0},
++    1,                // Socket String
++    CentralProcessor, // ProcessorType;          ///< The enumeration value from
++                      // PROCESSOR_TYPE_DATA.
++    ProcessorFamilyIndicatorFamily2, // ProcessorFamily;        ///< The
++                                     // enumeration value from
++                                     // PROCESSOR_FAMILY2_DATA.
++    2,                               // ProcessorManufacture String;
++    {                                // ProcessorId;
++     {0x00, 0x00, 0x00, 0x00},
++     {0x00, 0x00, 0x00, 0x00}},
++    3, // ProcessorVersion String;
++    {
++        // Voltage;
++        0, // ProcessorVoltageCapability5V        :1;
++        0, // ProcessorVoltageCapability3_3V      :1;
++        0, // ProcessorVoltageCapability2_9V      :1;
++        0, // ProcessorVoltageCapabilityReserved  :1; ///< Bit 3, must be zero.
++        0, // ProcessorVoltageReserved            :3; ///< Bits 4-6, must be
++           // zero.
++        1  // ProcessorVoltageIndicateLegacy      :1;
++    },
++    0,                     // ExternalClock;
++    1600,                  // MaxSpeed;
++    1600,                  // CurrentSpeed;
++    0x41,                  // Status;
++    ProcessorUpgradeOther, // ProcessorUpgrade;         ///< The enumeration
++                           // value from PROCESSOR_UPGRADE.
++    0,                     // L1CacheHandle;
++    0,                     // L2CacheHandle;
++    0xFFFF,                // L3CacheHandle;
++    0,                     // SerialNumber;
++    0,                     // AssetTag;
++    7,                     // PartNumber;
++    4,                     // CoreCount;
++    4,                     // EnabledCoreCount;
++    0,                     // ThreadCount;
++    0xEC, // ProcessorCharacteristics; ///< The enumeration value from
++          // PROCESSOR_CHARACTERISTIC_FLAGS ProcessorReserved1              :1;
++          // ProcessorUnknown                :1;
++          // Processor64BitCapble            :1;
++          // ProcessorMultiCore              :1;
++          // ProcessorHardwareThread         :1;
++          // ProcessorExecuteProtection      :1;
++          // ProcessorEnhancedVirtualization :1;
++          // ProcessorPowerPerformanceCtrl    :1;
++          // Processor128bitCapble            :1;
++          // ProcessorReserved2               :7;
++    ProcessorFamilyARM, // ARM Processor Family;
++    0,                  // CoreCount2;
++    0,                  // EnabledCoreCount2;
++    0,                  // ThreadCount2;
++};
++
++SMBIOS_TABLE_TYPE4 mProcessorInfoType4_a53 = {
++    {EFI_SMBIOS_TYPE_PROCESSOR_INFORMATION, sizeof(SMBIOS_TABLE_TYPE4), 0},
++    1,                // Socket String
++    CentralProcessor, // ProcessorType;          ///< The enumeration value from
++                      // PROCESSOR_TYPE_DATA.
++    ProcessorFamilyIndicatorFamily2, // ProcessorFamily;        ///< The
++                                     // enumeration value from
++                                     // PROCESSOR_FAMILY2_DATA.
++    2,                               // ProcessorManufacture String;
++    {                                // ProcessorId;
++     {0x00, 0x00, 0x00, 0x00},
++     {0x00, 0x00, 0x00, 0x00}},
++    3, // ProcessorVersion String;
++    {
++        // Voltage;
++        0, // ProcessorVoltageCapability5V        :1;
++        0, // ProcessorVoltageCapability3_3V      :1;
++        0, // ProcessorVoltageCapability2_9V      :1;
++        0, // ProcessorVoltageCapabilityReserved  :1; ///< Bit 3, must be zero.
++        0, // ProcessorVoltageReserved            :3; ///< Bits 4-6, must be
++           // zero.
++        1  // ProcessorVoltageIndicateLegacy      :1;
++    },
++    0,                     // ExternalClock;
++    1350,                  // MaxSpeed;
++    1350,                  // CurrentSpeed;
++    0x41,                  // Status;
++    ProcessorUpgradeOther, // ProcessorUpgrade;         ///< The enumeration
++                           // value from PROCESSOR_UPGRADE.
++    0,                     // L1CacheHandle;
++    0,                     // L2CacheHandle;
++    0xFFFF,                // L3CacheHandle;
++    0,                     // SerialNumber;
++    0,                     // AssetTag;
++    6,                     // PartNumber;
++    4,                     // CoreCount;
++    4,                     // EnabledCoreCount;
++    0,                     // ThreadCount;
++    0xEC, // ProcessorCharacteristics; ///< The enumeration value from
++          // PROCESSOR_CHARACTERISTIC_FLAGS ProcessorReserved1              :1;
++          // ProcessorUnknown                :1;
++          // Processor64BitCapble            :1;
++          // ProcessorMultiCore              :1;
++          // ProcessorHardwareThread         :1;
++          // ProcessorExecuteProtection      :1;
++          // ProcessorEnhancedVirtualization :1;
++          // ProcessorPowerPerformanceCtrl    :1;
++          // Processor128bitCapble            :1;
++          // ProcessorReserved2               :7;
++    ProcessorFamilyARM, // ARM Processor Family;
++    0,                  // CoreCount2;
++    0,                  // EnabledCoreCount2;
++    0,                  // ThreadCount2;
++};
++
++CHAR8 mCpuName[128] = "Samsung Exynos 7885";
++
++CHAR8 *mProcessorInfoType4Strings[] = {
++    "BGA", "Samsung", "Exynos 7885", NULL};
++
++/***********************************************************************
++        SMBIOS data definition  TYPE7  Cache Information
++************************************************************************/
++SMBIOS_TABLE_TYPE7 mCacheInfoType7_a73_L1I = {
++    {EFI_SMBIOS_TYPE_CACHE_INFORMATION, sizeof(SMBIOS_TABLE_TYPE7), 0},
++    1,     // SocketDesignation String
++    0x380, // Cache Configuration
++           // Cache Level        :3  (L1)
++           // Cache Socketed     :1  (Not Socketed)
++           // Reserved           :1
++           // Location           :2  (Internal)
++           // Enabled/Disabled   :1  (Enabled)
++           // Operational Mode   :2  (Unknown)
++           // Reserved           :6
++    0x0030, // Maximum Size
++    0x0030, // Install Size
++    {
++        // Supported SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    {
++        // Current SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    0,                      // Cache Speed unknown
++    CacheErrorParity,       // Error Correction
++    CacheTypeInstruction,   // System Cache Type
++    CacheAssociativityOther // Associativity
++};
++
++SMBIOS_TABLE_TYPE7 mCacheInfoType7_a53_L1I = {
++    {EFI_SMBIOS_TYPE_CACHE_INFORMATION, sizeof(SMBIOS_TABLE_TYPE7), 0},
++    1,     // SocketDesignation String
++    0x380, // Cache Configuration
++           // Cache Level        :3  (L1)
++           // Cache Socketed     :1  (Not Socketed)
++           // Reserved           :1
++           // Location           :2  (Internal)
++           // Enabled/Disabled   :1  (Enabled)
++           // Operational Mode   :2  (Unknown)
++           // Reserved           :6
++    0x0030, // Maximum Size
++    0x0030, // Install Size
++    {
++        // Supported SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    {
++        // Current SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    0,                     // Cache Speed unknown
++    CacheErrorParity,      // Error Correction
++    CacheTypeInstruction,  // System Cache Type
++    CacheAssociativity2Way // Associativity
++};
++CHAR8 *mCacheInfoType7Strings[] = {"L1 Instruction", "L1 Data", "L2", NULL};
++
++SMBIOS_TABLE_TYPE7 mCacheInfoType7_a73_L1D = {
++    {EFI_SMBIOS_TYPE_CACHE_INFORMATION, sizeof(SMBIOS_TABLE_TYPE7), 0},
++    2,     // SocketDesignation String
++    0x180, // Cache Configuration
++           // Cache Level        :3  (L1)
++           // Cache Socketed     :1  (Not Socketed)
++           // Reserved           :1
++           // Location           :2  (Internal)
++           // Enabled/Disabled   :1  (Enabled)
++           // Operational Mode   :2  (WB)
++           // Reserved           :6
++    0x0020, // Maximum Size
++    0x0020, // Install Size
++    {
++        // Supported SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    {
++        // Current SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    0,                     // Cache Speed unknown
++    CacheErrorSingleBit,   // Error Correction
++    CacheTypeData,         // System Cache Type
++    CacheAssociativity2Way // Associativity
++};
++
++SMBIOS_TABLE_TYPE7 mCacheInfoType7_a53_L1D = {
++    {EFI_SMBIOS_TYPE_CACHE_INFORMATION, sizeof(SMBIOS_TABLE_TYPE7), 0},
++    2,     // SocketDesignation String
++    0x180, // Cache Configuration
++           // Cache Level        :3  (L1)
++           // Cache Socketed     :1  (Not Socketed)
++           // Reserved           :1
++           // Location           :2  (Internal)
++           // Enabled/Disabled   :1  (Enabled)
++           // Operational Mode   :2  (WB)
++           // Reserved           :6
++    0x0020, // Maximum Size
++    0x0020, // Install Size
++    {
++        // Supported SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    {
++        // Current SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    0,                     // Cache Speed unknown
++    CacheErrorSingleBit,   // Error Correction
++    CacheTypeData,         // System Cache Type
++    CacheAssociativity4Way // Associativity
++};
++
++SMBIOS_TABLE_TYPE7 mCacheInfoType7_a73_L2 = {
++    {EFI_SMBIOS_TYPE_CACHE_INFORMATION, sizeof(SMBIOS_TABLE_TYPE7), 0},
++    3,      // SocketDesignation String
++    0x0181, // Cache Configuration
++            // Cache Level        :3  (L2)
++            // Cache Socketed     :1  (Not Socketed)
++            // Reserved           :1
++            // Location           :2  (Internal)
++            // Enabled/Disabled   :1  (Enabled)
++            // Operational Mode   :2  (WB)
++            // Reserved           :6
++    0x0800, // Maximum Size
++    0x0800, // Install Size
++    {
++        // Supported SRAM Type
++        0, // Other             :1
++        0, // Unknown           :1
++        1, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    {
++        // Current SRAM Type
++        0, // Other             :1
++        0, // Unknown           :1
++        1, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    0,                      // Cache Speed unknown
++    CacheErrorSingleBit,    // Error Correction Multi
++    CacheTypeUnified,       // System Cache Type
++    CacheAssociativity16Way // Associativity
++};
++
++SMBIOS_TABLE_TYPE7 mCacheInfoType7_a53_L2 = {
++    {EFI_SMBIOS_TYPE_CACHE_INFORMATION, sizeof(SMBIOS_TABLE_TYPE7), 0},
++    3,      // SocketDesignation String
++    0x0181, // Cache Configuration
++            // Cache Level        :3  (L2)
++            // Cache Socketed     :1  (Not Socketed)
++            // Reserved           :1
++            // Location           :2  (Internal)
++            // Enabled/Disabled   :1  (Enabled)
++            // Operational Mode   :2  (WB)
++            // Reserved           :6
++    0x0800, // Maximum Size
++    0x0800, // Install Size
++    {
++        // Supported SRAM Type
++        0, // Other             :1
++        1, // Unknown           :1
++        0, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    {
++        // Current SRAM Type
++        0, // Other             :1
++        0, // Unknown           :1
++        1, // NonBurst          :1
++        0, // Burst             :1
++        0, // PiplelineBurst    :1
++        0, // Synchronous       :1
++        0, // Asynchronous      :1
++        0  // Reserved          :9
++    },
++    0,                      // Cache Speed unknown
++    CacheErrorSingleBit,    // Error Correction Multi
++    CacheTypeUnified,       // System Cache Type
++    CacheAssociativity16Way // Associativity
++};
++
++/***********************************************************************
++        SMBIOS data definition  TYPE17  Memory Device Information
++************************************************************************/
++SMBIOS_TABLE_TYPE17 mMemDevInfoType17 = {
++    {EFI_SMBIOS_TYPE_MEMORY_DEVICE, sizeof(SMBIOS_TABLE_TYPE17), 0},
++    0, // MemoryArrayHandle; // Should match SMBIOS_TABLE_TYPE16.Handle,
++       // initialized at runtime, refer to PhyMemArrayInfoUpdateSmbiosType16()
++    0xFFFE, // MemoryErrorInformationHandle; (not provided)
++    64,     // TotalWidth; (unknown)
++    64,     // DataWidth; (unknown)
++    0x2000, // Size; // When bit 15 is 0: Size in MB
++            // When bit 15 is 1: Size in KB, and continues in ExtendedSize
++            // initialized at runtime, refer to
++            // PhyMemArrayInfoUpdateSmbiosType16()
++    MemoryFormFactorRowOfChips, // FormFactor;                     ///< The
++                                // enumeration value from MEMORY_FORM_FACTOR.
++    0,                          // DeviceSet;
++    1,                          // DeviceLocator String
++    2,                          // BankLocator String
++    MemoryTypeLpddr4, // MemoryType;                     ///< The enumeration
++                      // value from MEMORY_DEVICE_TYPE.
++    {
++        // TypeDetail;
++        0, // Reserved        :1;
++        0, // Other           :1;
++        0, // Unknown         :1;
++        0, // FastPaged       :1;
++        0, // StaticColumn    :1;
++        0, // PseudoStatic    :1;
++        0, // Rambus          :1;
++        0, // Synchronous     :1;
++        0, // Cmos            :1;
++        0, // Edo             :1;
++        0, // WindowDram      :1;
++        0, // CacheDram       :1;
++        0, // Nonvolatile     :1;
++        0, // Registered      :1;
++        1, // Unbuffered      :1;
++        0, // Reserved1       :1;
++    },
++    2133,                 // Speed; (unknown)
++    2,                    // Manufacturer String
++    0,                    // SerialNumber String
++    0,                    // AssetTag String
++    0,                    // PartNumber String
++    0,                    // Attributes; (unknown rank)
++    0,                    // ExtendedSize; (since Size < 32GB-1)
++    0,                    // ConfiguredMemoryClockSpeed; (unknown)
++    0,                    // MinimumVoltage; (unknown)
++    0,                    // MaximumVoltage; (unknown)
++    0,                    // ConfiguredVoltage; (unknown)
++    MemoryTechnologyDram, // MemoryTechnology                 ///< The
++                          // enumeration value from MEMORY_DEVICE_TECHNOLOGY
++    {{
++        // MemoryOperatingModeCapability
++        0, // Reserved                        :1;
++        0, // Other                           :1;
++        0, // Unknown                         :1;
++        1, // VolatileMemory                  :1;
++        0, // ByteAccessiblePersistentMemory  :1;
++        0, // BlockAccessiblePersistentMemory :1;
++        0  // Reserved                        :10;
++    }},
++    0,                     // FirwareVersion
++    0,                     // ModuleManufacturerID (unknown)
++    0,                     // ModuleProductID (unknown)
++    0,                     // MemorySubsystemControllerManufacturerID (unknown)
++    0,                     // MemorySubsystemControllerProductID (unknown)
++    0,                     // NonVolatileSize
++    0xFFFFFFFFFFFFFFFFULL, // VolatileSize // initialized at runtime, refer to
++                           // PhyMemArrayInfoUpdateSmbiosType16()
++    0,                     // CacheSize
++    0,                     // LogicalSize (since MemoryType is not
++                           // MemoryTypeLogicalNonVolatileDevice)
++    0,                     // ExtendedSpeed,
++    0                      // ExtendedConfiguredMemorySpeed
++};
++CHAR8 *mMemDevInfoType17Strings[] = {"Builtin", "BANK 0", NULL};
++
++VOID RegisterSOCSmbiosInfo(
++	SMBIOS_LOG_SMBIOS_DATA LogSmbiosData,
++	EFI_SMBIOS_HANDLE Type16
++){
++  EFI_SMBIOS_HANDLE SmbiosHandle;
++  // TYPE7 Cache Information
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_a73_L1I,
++      mCacheInfoType7Strings, NULL);
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_a53_L1I,
++      mCacheInfoType7Strings, NULL);
++
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_a73_L1D,
++      mCacheInfoType7Strings, &SmbiosHandle);
++  mProcessorInfoType4_a73.L1CacheHandle = (UINT16)SmbiosHandle;
++
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_a53_L1D,
++      mCacheInfoType7Strings, &SmbiosHandle);
++  mProcessorInfoType4_a53.L1CacheHandle = (UINT16)SmbiosHandle;
++
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_a73_L2,
++      mCacheInfoType7Strings, &SmbiosHandle);
++  mProcessorInfoType4_a73.L2CacheHandle = (UINT16)SmbiosHandle;
++
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_a53_L2,
++      mCacheInfoType7Strings, &SmbiosHandle);
++  mProcessorInfoType4_a53.L2CacheHandle = (UINT16)SmbiosHandle;
++
++  // TYPE4 Processor Information
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mProcessorInfoType4_a73,
++      mProcessorInfoType4Strings, NULL);
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mProcessorInfoType4_a53,
++      mProcessorInfoType4Strings, NULL);
++
++  // TYPE17 Memory Device Information
++  mMemDevInfoType17.MemoryArrayHandle    = Type16;
++  LogSmbiosData(
++      (EFI_SMBIOS_TABLE_HEADER *)&mMemDevInfoType17, mMemDevInfoType17Strings,
++      NULL);
++}
+diff --git a/Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfoLib.inf b/Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfoLib.inf
+new file mode 100644
+index 0000000..42b0918
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/Library/SOCSmbiosInfoLib/SOCSmbiosInfoLib.inf
+@@ -0,0 +1,19 @@
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = SOCSmbiosInfoLib
++  FILE_GUID                      = 11F9F33F-2C69-460B-9613-79B967F8EFA6
++  MODULE_TYPE                    = DXE_DRIVER
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = SOCSmbiosInfoLib
++
++[Sources]
++  SOCSmbiosInfo.c
++
++[Packages]
++  ArmPkg/ArmPkg.dec
++  MdePkg/MdePkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  EmbeddedPkg/EmbeddedPkg.dec
++  Silicon/Samsung/ExynosPkg/ExynosPkg.dec
++  Silicon/Samsung/Exynos7885Pkg/exynos7885.dec
++
+diff --git a/Silicon/Samsung/Exynos7580Pkg/exynos7580.dec b/Silicon/Samsung/Exynos7580Pkg/exynos7580.dec
+new file mode 100644
+index 0000000..b4db518
+--- /dev/null
++++ b/Silicon/Samsung/Exynos7580Pkg/exynos7580.dec
+@@ -0,0 +1,15 @@
++[Defines]
++  DEC_SPECIFICATION              = 0x0001001A
++  PACKAGE_NAME                   = exynos7580Pkg
++  PACKAGE_GUID                   = 767e65f1-0f30-40ea-9609-5abd3277f0a9
++  PACKAGE_VERSION                = 1.0
++
++[Includes]
++  Include
++
++[Guids]
++  gexynos7580PkgTokenSpaceGuid        = { 0x99a14446, 0xaad7, 0xe460, {0xb4, 0xe5, 0x1f, 0x79, 0xaa, 0xa4, 0x93, 0xfd } }
++
++[PcdsFixedAtBuild.common]
++
++
+diff --git a/Silicon/Samsung/ExynosPkg/ExynosCommonDsc.j7.inc b/Silicon/Samsung/ExynosPkg/ExynosCommonDsc.j7.inc
+new file mode 100644
+index 0000000..fd570d2
+--- /dev/null
++++ b/Silicon/Samsung/ExynosPkg/ExynosCommonDsc.j7.inc
+@@ -0,0 +1,538 @@
++## @file
++#
++#  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
++#  Copyright (c) 2014, Linaro Limited. All rights reserved.
++#  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.
++#  Copyright (c) 2018 - 2019, Bingxing Wang. All rights reserved.
++#  Copyright (c) 2022, DuoWoA authors. All rights reserved.
++#  Copyright (c) 2022, Renegade Project. All rights reserved.
++#
++#  SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++##
++
++[BuildOptions.common]
++  # FIXME: use less -Wno- flags
++  # Clang -Os error bypass
++  !if $(FIX_CLANG) == 1
++  *_CLANG38_AARCH64_CC_FLAGS = -Wno-unused-const-variable -Wno-sometimes-uninitialized -D CLANG -Wno-self-assign -Wno-uninitialized -Wno-initializer-overrides -Wno-non-literal-null-conversion -Wno-unused-but-set-variable -Wno-string-plus-int -fdiagnostics-format=vi -fcolor-diagnostics -Wno-deprecated-non-prototype
++  !else
++  *_CLANG38_AARCH64_CC_FLAGS = -Os -Wno-unused-const-variable -Wno-sometimes-uninitialized -D CLANG -Wno-self-assign -Wno-uninitialized -Wno-initializer-overrides -Wno-non-literal-null-conversion -Wno-unused-but-set-variable -Wno-string-plus-int -fdiagnostics-format=vi -fcolor-diagnostics -Wno-deprecated-non-prototype
++  !endif
++  # WARNING: GCC compilation doesn't work sometimes
++  *_GCC5_AARCH64_CC_FLAGS = -O1
++  *_*_*_CC_FLAGS = -DDEFAULT_DARK -mtune=cortex-a53 -mcpu=cortex-a53 -fverbose-asm -funsigned-char -ffunction-sections -fdata-sections -fno-builtin -fno-common -Wno-unused-variable -fshort-wchar -fno-strict-aliasing -mlittle-endian -fno-short-enums -fno-asynchronous-unwind-tables -mcmodel=small -ffixed-x18 -mstrict-align -fstack-protector -Wno-unaligned-access -Wno-misleading-indentation
++
++  !if $(ENABLE_LINUX_UTILS) == 1
++    GCC:*_*_AARCH64_CC_FLAGS = -DENABLE_LINUX_UTILS=1
++  !endif
++  
++  !if $(AB_SLOTS_SUPPORT) == TRUE
++    GCC:*_*_AARCH64_CC_FLAGS = -DAB_SLOTS_SUPPORT=1
++  !endif
++
++[BuildOptions.common.EDKII.DXE_CORE,BuildOptions.common.EDKII.DXE_DRIVER,BuildOptions.common.EDKII.UEFI_DRIVER,BuildOptions.common.EDKII.UEFI_APPLICATION]
++  *_*_*_DLINK_FLAGS = -z common-page-size=0x1000
++
++[BuildOptions.common.EDKII.DXE_RUNTIME_DRIVER]
++  *_*_ARM_DLINK_FLAGS = -z common-page-size=0x1000
++  *_*_AARCH64_DLINK_FLAGS = -z common-page-size=0x10000 -Wl,--fix-cortex-a53-843419
++
++[PcdsFeatureFlag.common]
++  gArmTokenSpaceGuid.PcdCpuDxeProduceDebugSupport|FALSE
++
++  gEfiMdePkgTokenSpaceGuid.PcdComponentNameDisable|TRUE
++  gEfiMdePkgTokenSpaceGuid.PcdDriverDiagnosticsDisable|TRUE
++  gEfiMdePkgTokenSpaceGuid.PcdComponentName2Disable|TRUE
++  gEfiMdePkgTokenSpaceGuid.PcdDriverDiagnostics2Disable|TRUE
++
++  gEfiMdeModulePkgTokenSpaceGuid.PcdTurnOffUsbLegacySupport|TRUE
++  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutGopSupport|TRUE
++  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutUgaSupport|FALSE
++  gEfiMdeModulePkgTokenSpaceGuid.PcdSupportUpdateCapsuleReset|TRUE
++
++  gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|TRUE
++
++  gEfiMdeModulePkgTokenSpaceGuid.PcdPciBusHotplugDeviceSupport|FALSE
++
++  gEfiMdeModulePkgTokenSpaceGuid.PcdInstallAcpiSdtProtocol|TRUE
++
++[PcdsFixedAtBuild.common]
++  gArmPlatformTokenSpaceGuid.PcdCPUCoresStackBase|0x9FF90000
++  gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize|0x20000
++
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"ProjectEku"
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"$(FIRMWARE_VER)"
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId|"SAMS  "
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemTableId|0x324B44454D4F4351
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorId|0x4D4F4351
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorRevision|0x00000001
++  gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
++  gEfiMdePkgTokenSpaceGuid.PcdMaximumAsciiStringLength|1000000
++  gEfiMdePkgTokenSpaceGuid.PcdMaximumLinkedListLength|1000000
++  gEfiMdePkgTokenSpaceGuid.PcdSpinLockTimeout|10000000
++  gEfiMdePkgTokenSpaceGuid.PcdDebugClearMemoryValue|0xAF
++  gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask|1
++  gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
++  gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
++!if $(TARGET) == RELEASE
++  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x0e
++  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000000
++!else
++  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2f
++  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x800fee0f
++!endif
++# Use 0x807B55FF to enable all debug messages
++  gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x06
++  gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
++
++  #
++  # Make VariableRuntimeDxe work at emulated non-volatile variable mode.
++  #
++  gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
++
++  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|0
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIReclaimMemory|0
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiACPIMemoryNVS|0
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiReservedMemoryType|0
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesData|600
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesCode|400
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesCode|1500
++!else
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesData|300
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiRuntimeServicesCode|150
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesCode|1000
++!endif
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiBootServicesData|800
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderCode|10
++  gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderData|0
++
++  ## Default Terminal Type
++  ## 0-PCANSI, 1-VT100, 2-VT00+, 3-UTF8, 4-TTYTERM
++  gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
++
++  # Boot Manager
++  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|3
++
++  # PCI Express
++  gEfiMdeModulePkgTokenSpaceGuid.PcdSrIovSupport|FALSE
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAriSupport|FALSE
++  gEfiMdeModulePkgTokenSpaceGuid.PcdMrIovSupport|FALSE
++  gArmTokenSpaceGuid.PcdPciBusMin|0x0
++  gArmTokenSpaceGuid.PcdPciBusMax|0xff
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  gEfiMdeModulePkgTokenSpaceGuid.PcdMaxAuthVariableSize|0x2800
++  gEfiSecurityPkgTokenSpaceGuid.PcdUserPhysicalPresence|TRUE
++!endif
++
++  # a PCD that controls the enumeration and connection of ConIn's. When true, ConIn is only connected once a console input is requests
++  gEfiMdeModulePkgTokenSpaceGuid.PcdConInConnectOnDemand|FALSE
++
++  # Enable SHELL to build instead of just taking the binary
++  gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|16000
++  gEfiShellPkgTokenSpaceGuid.PcdShellProfileMask|0x1f    # All profiles
++
++  # GUID of the UI app
++  gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x21, 0xaa, 0x2c, 0x46, 0x14, 0x76, 0x03, 0x45, 0x83, 0x6e, 0x8a, 0xb6, 0xf4, 0x66, 0x23, 0x31 }
++  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|0
++
++  gEfiMdeModulePkgTokenSpaceGuid.PcdMaxVariableSize|0x2000
++
++# Produce the highest video mode in Shell and UiApp
++[PcdsDynamicDefault.common]
++  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|0 # /8 = column
++  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|0 #/19 = row
++  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|0
++  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution|0
++  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow|0
++  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn|0
++  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|0
++  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|0
++  
++!include MdePkg/MdeLibs.dsc.inc
++!include SimpleInit.inc
++
++[LibraryClasses.common]
++  ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
++  ArmMmuLib|ArmPkg/Library/ArmMmuLib/ArmMmuBaseLib.inf
++!if $(USE_PHYSICAL_TIMER) == TRUE
++  ArmGenericTimerCounterLib|ArmPkg/Library/ArmGenericTimerPhyCounterLib/ArmGenericTimerPhyCounterLib.inf
++!else
++  ArmGenericTimerCounterLib|ArmPkg/Library/ArmGenericTimerVirtCounterLib/ArmGenericTimerVirtCounterLib.inf
++!endif
++  ArmDisassemblerLib|ArmPkg/Library/ArmDisassemblerLib/ArmDisassemblerLib.inf
++  ArmGicLib|ArmPkg/Drivers/ArmGic/ArmGicLib.inf
++  ArmHvcLib|ArmPkg/Library/ArmHvcLib/ArmHvcLib.inf
++  ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
++
++!if $(BROKEN_CNTFRQ_EL0) == 1
++  TimerLib|Silicon/Samsung/ExynosPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
++!else
++  TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
++!endif
++
++  BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
++  BaseMemoryLib|MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf
++  BaseSynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
++  BootLogoLib|MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf
++  BmpSupportLib|MdeModulePkg/Library/BaseBmpSupportLib/BaseBmpSupportLib.inf
++  CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
++  CacheMaintenanceLib|ArmPkg/Library/ArmCacheMaintenanceLib/ArmCacheMaintenanceLib.inf
++  CompilerIntrinsicsLib|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
++  NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
++  NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
++  CpuExceptionHandlerLib|ArmPkg/Library/ArmExceptionLib/ArmExceptionLib.inf
++  CpuLib|MdePkg/Library/BaseCpuLib/BaseCpuLib.inf
++  CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
++  DefaultExceptionHandlerLib|ArmPkg/Library/DefaultExceptionHandlerLib/DefaultExceptionHandlerLib.inf
++  DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
++  DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
++  DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
++  DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
++  DxeServicesLib|MdePkg/Library/DxeServicesLib/DxeServicesLib.inf
++  DxeServicesTableLib|MdePkg/Library/DxeServicesTableLib/DxeServicesTableLib.inf
++  ExtractGuidedSectionLib|EmbeddedPkg/Library/PrePiExtractGuidedSectionLib/PrePiExtractGuidedSectionLib.inf
++  FileExplorerLib|MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf
++  FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
++  FrameBufferBltLib|MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
++  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
++  HiiLib|MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf
++  IoLib|MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf
++  LzmaDecompressLib|MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
++  NetLib|NetworkPkg/Library/DxeNetLib/DxeNetLib.inf
++  DpcLib|NetworkPkg/Library/DxeDpcLib/DxeDpcLib.inf
++  UdpIoLib|NetworkPkg/Library/DxeUdpIoLib/DxeUdpIoLib.inf
++  IpIoLib|NetworkPkg/Library/DxeIpIoLib/DxeIpIoLib.inf
++  PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
++  PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
++  PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
++  PeCoffGetEntryPointLib|MdePkg/Library/BasePeCoffGetEntryPointLib/BasePeCoffGetEntryPointLib.inf
++  PerformanceLib|MdePkg/Library/BasePerformanceLibNull/BasePerformanceLibNull.inf
++  PlatformBootManagerLib|Platform/RenegadePkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf # Custom
++  PrePiLib|EmbeddedPkg/Library/PrePiLib/PrePiLib.inf
++  PrePiHobListPointerLib|ArmPlatformPkg/Library/PrePiHobListPointerLib/PrePiHobListPointerLib.inf
++  PrePiMemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
++  PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
++  OrderedCollectionLib|MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf
++  SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
++  SortLib|MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf
++  SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
++  UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
++  UefiDecompressLib|MdePkg/Library/BaseUefiDecompressLib/BaseUefiDecompressLib.inf
++  UefiBootServicesTableLib|MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf
++  UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
++  UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
++  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
++  UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
++  UefiUsbLib|MdePkg/Library/UefiUsbLib/UefiUsbLib.inf
++  UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
++  UefiHiiServicesLib|MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.inf
++  TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
++  VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
++  VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLib.inf
++  VariablePolicyHelperLib|MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf
++  TimeBaseLib|EmbeddedPkg/Library/TimeBaseLib/TimeBaseLib.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  RngLib|MdePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf
++  IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
++  TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
++  OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLibCrypto.inf
++  PlatformSecureLib|SecurityPkg/Library/PlatformSecureLibNull/PlatformSecureLibNull.inf
++  AuthVariableLib|SecurityPkg/Library/AuthVariableLib/AuthVariableLib.inf
++  SecureBootVariableLib|SecurityPkg/Library/SecureBootVariableLib/SecureBootVariableLib.inf
++  SecureBootVariableProvisionLib|SecurityPkg/Library/SecureBootVariableProvisionLib/SecureBootVariableProvisionLib.inf
++!else
++  AuthVariableLib|MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
++!endif
++  VariableFlashInfoLib|MdeModulePkg/Library/BaseVariableFlashInfoLib/BaseVariableFlashInfoLib.inf
++
++  # System Reset
++!if !$(IMPLEMENTS_CUSTOM_RESETLIB) == 1
++  HwResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
++!endif
++
++  RealTimeClockLib|EmbeddedPkg/Library/VirtualRealTimeClockLib/VirtualRealTimeClockLib.inf
++  ResetUtilityLib|MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf
++
++!if !$(IMPLEMENTS_CUSTOM_RESETLIB) == 1
++  ResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
++!endif
++
++  DtPlatformDtbLoaderLib|EmbeddedPkg/Library/DxeDtPlatformDtbLoaderLibDefault/DxeDtPlatformDtbLoaderLibDefault.inf
++
++  MemoryInitPeiLib|Silicon/Samsung/ExynosPkg/Library/MemoryInitPeiLib/PeiMemoryAllocationLib.inf
++  MemoryMapHelperLib|Silicon/Samsung/ExynosPkg/Library/MemoryMapHelperLib/MemoryMapHelperLib.inf
++  
++  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
++  DebugAgentTimerLib|EmbeddedPkg/Library/DebugAgentTimerLibNull/DebugAgentTimerLibNull.inf
++  FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
++  FmpAuthenticationLib|SecurityPkg/Library/FmpAuthenticationLibPkcs7/FmpAuthenticationLibPkcs7.inf
++  HttpLib|NetworkPkg/Library/DxeHttpLib/DxeHttpLib.inf
++  NonDiscoverableDeviceRegistrationLib|MdeModulePkg/Library/NonDiscoverableDeviceRegistrationLib/NonDiscoverableDeviceRegistrationLib.inf
++  OemHookStatusCodeLib|MdeModulePkg/Library/OemHookStatusCodeLibNull/OemHookStatusCodeLibNull.inf
++  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
++  ShellLib|ShellPkg/Library/UefiShellLib/UefiShellLib.inf
++  UefiDevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
++  UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
++  
++  SerialPortLib|Silicon/Samsung/ExynosPkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf
++
++!if $(AB_SLOTS_SUPPORT) == TRUE
++  BootSlotLib|GPLDrivers/Library/BootSlotLib/BootSlotLib.inf
++!endif
++
++[LibraryClasses.common.SEC]
++  ArmGicArchLib|ArmPkg/Library/ArmGicArchSecLib/ArmGicArchSecLib.inf
++  HobLib|EmbeddedPkg/Library/PrePiHobLib/PrePiHobLib.inf
++  MemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
++  PrePiMemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
++  PrePiHobListPointerLib|ArmPlatformPkg/Library/PrePiHobListPointerLib/PrePiHobListPointerLib.inf
++  PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
++
++[LibraryClasses.common.DXE_CORE]
++  ArmGicArchLib|ArmPkg/Library/ArmGicArchLib/ArmGicArchLib.inf
++  HobLib|MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
++  MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
++  DxeCoreEntryPoint|MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf
++  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
++  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
++  UefiDecompressLib|MdePkg/Library/BaseUefiDecompressLib/BaseUefiDecompressLib.inf
++  PerformanceLib|MdeModulePkg/Library/DxeCorePerformanceLib/DxeCorePerformanceLib.inf
++
++[LibraryClasses.common.DXE_DRIVER]
++  ArmGicArchLib|ArmPkg/Library/ArmGicArchLib/ArmGicArchLib.inf
++  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
++  SecurityManagementLib|MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf
++  PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
++  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
++  HiiLib|MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf
++  UefiHiiServicesLib|MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.inf
++  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
++!endif
++
++[LibraryClasses.common.UEFI_APPLICATION]
++  ArmGicArchLib|ArmPkg/Library/ArmGicArchLib/ArmGicArchLib.inf
++  UefiDecompressLib|MdePkg/Library/BaseUefiDecompressLib/BaseUefiTianoCustomDecompressLib.inf
++  PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
++  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
++  HiiLib|MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf
++  ShellLib|ShellPkg/Library/UefiShellLib/UefiShellLib.inf
++  FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
++  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
++  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
++!endif
++
++[LibraryClasses.common.UEFI_DRIVER]
++  ArmGicArchLib|ArmPkg/Library/ArmGicArchLib/ArmGicArchLib.inf
++  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
++  UefiDecompressLib|MdePkg/Library/BaseUefiDecompressLib/BaseUefiTianoCustomDecompressLib.inf
++  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
++  PerformanceLib|MdeModulePkg/Library/DxePerformanceLib/DxePerformanceLib.inf
++  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
++  UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
++  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
++!endif
++
++[LibraryClasses.common.DXE_RUNTIME_DRIVER]
++  ArmGicArchLib|ArmPkg/Library/ArmGicArchLib/ArmGicArchLib.inf
++  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
++  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
++  ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
++  CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
++  ArmHvcLib|ArmPkg/Library/ArmHvcLib/ArmHvcLib.inf
++  ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
++  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
++
++  # System Reset
++  HwResetSystemLib|ArmPkg/Library/ArmSmcPsciResetSystemLib/ArmSmcPsciResetSystemLib.inf
++
++  VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLibRuntimeDxe.inf
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/RuntimeCryptLib.inf
++!endif
++
++[Components.common]
++  # PrePI
++  Silicon/Samsung/ExynosPkg/PrePi/PrePi.inf {
++    <LibraryClasses>
++      SerialPortLib|Silicon/Samsung/ExynosPkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf
++  }
++
++  # DXE
++  MdeModulePkg/Core/Dxe/DxeMain.inf {
++    <LibraryClasses>
++    PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
++    NULL|MdeModulePkg/Library/DxeCrc32GuidedSectionExtractLib/DxeCrc32GuidedSectionExtractLib.inf
++    NULL|MdeModulePkg/Library/DxeCrc32GuidedSectionExtractLib/DxeCrc32GuidedSectionExtractLib.inf
++    NULL|MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
++  }
++
++  # PCD Database
++  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf {
++    <LibraryClasses>
++    PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
++  }
++
++  # Processor Core Services
++  ArmPkg/Drivers/CpuDxe/CpuDxe.inf {
++    <LibraryClasses>
++    !if $(NO_EXCEPTION_DISPLAY) == TRUE
++      SerialPortLib|Common/edk2/MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
++    !else
++      SerialPortLib|Silicon/Samsung/ExynosPkg/Library/FrameBufferSerialPortLib/FrameBufferSerialPortLib.inf
++    !endif
++  }
++  ArmPkg/Drivers/TimerDxe/TimerDxe.inf
++  ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
++  MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
++  EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
++  EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf {
++    <LibraryClasses>
++	  RealTimeClockLib|Silicon/Samsung/ExynosPkg/Library/VirtualRealTimeClockLib/VirtualRealTimeClockLib.inf
++  }
++
++  # Runtime Services
++  MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
++  MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
++  EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
++
++  # Fake Variable Services
++  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
++
++  # Security Stub
++  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf {
++    <LibraryClasses>
++!if $(SECURE_BOOT_ENABLE) == TRUE
++      NULL|SecurityPkg/Library/DxeImageVerificationLib/DxeImageVerificationLib.inf
++!endif
++  }
++
++!if $(SECURE_BOOT_ENABLE) == TRUE
++  SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
++  SecurityPkg/EnrollFromDefaultKeysApp/EnrollFromDefaultKeysApp.inf
++  SecurityPkg/VariableAuthenticated/SecureBootDefaultKeysDxe/SecureBootDefaultKeysDxe.inf
++!endif
++
++  # BDS
++  MdeModulePkg/Universal/PrintDxe/PrintDxe.inf
++  MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
++  MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
++  MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
++  MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
++!if $(TARGET) != RELEASE
++  MdeModulePkg/Universal/SerialDxe/SerialDxe.inf
++!endif
++  MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
++  MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf {
++    <LibraryClasses>
++      PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
++  }
++  MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
++  MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
++  MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
++  MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe.inf
++  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
++  MdeModulePkg/Application/UiApp/UiApp.inf {
++    <LibraryClasses>
++      NULL|MdeModulePkg/Library/DeviceManagerUiLib/DeviceManagerUiLib.inf
++      NULL|MdeModulePkg/Library/BootManagerUiLib/BootManagerUiLib.inf
++      NULL|MdeModulePkg/Library/BootMaintenanceManagerUiLib/BootMaintenanceManagerUiLib.inf
++      PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
++  }
++  Platform/RenegadePkg/Drivers/LogoDxe/LogoDxe.inf
++
++  ShellPkg/Application/Shell/Shell.inf {
++    <LibraryClasses>
++      ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
++      NULL|ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellLevel1CommandsLib/UefiShellLevel1CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellLevel3CommandsLib/UefiShellLevel3CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellDriver1CommandsLib/UefiShellDriver1CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellInstall1CommandsLib/UefiShellInstall1CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellNetwork1CommandsLib/UefiShellNetwork1CommandsLib.inf
++      NULL|ShellPkg/Library/UefiShellAcpiViewCommandLib/UefiShellAcpiViewCommandLib.inf
++      HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
++      PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
++      BcfgCommandLib|ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf
++    <PcdsFixedAtBuild>
++      gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0xFF
++      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
++      gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
++  }
++
++  # Disk IO
++  MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
++  MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf {
++    <LibraryClasses>
++      # Make it quiet
++      DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
++  }
++  MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
++  MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
++  FatPkg/EnhancedFatDxe/Fat.inf
++  MdeModulePkg/Bus/Scsi/ScsiBusDxe/ScsiBusDxe.inf
++  MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
++
++  # USB
++  MdeModulePkg/Bus/Usb/UsbMouseAbsolutePointerDxe/UsbMouseAbsolutePointerDxe.inf
++  MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
++  MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
++  MdeModulePkg/Bus/Usb/UsbMouseDxe/UsbMouseDxe.inf
++  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
++
++  # DT
++  EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf
++
++  EmbeddedPkg/Drivers/VirtualKeyboardDxe/VirtualKeyboardDxe.inf
++
++  # SMBIOS
++  Platform/RenegadePkg/Drivers/PlatformSmbiosDxe/PlatformSmbiosDxe.inf
++
++  # Simple framebuffer
++  Silicon/Samsung/ExynosPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
++
++  # Keypad
++  Silicon/Samsung/ExynosPkg/Drivers/KeypadDxe/KeypadDxe.inf
++  Silicon/Samsung/ExynosPkg/Drivers/GenericKeypadDeviceDxe/GenericKeypadDeviceDxe.inf
++
++  # ACPI
++  # We use pre-built ACPI tables, so only core components are loaded
++  MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
++  MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
++  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
++
++  # Pci
++  MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
++
++  MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
++  MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe.inf
++  EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
++  MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
++
++  MdeModulePkg/Universal/EsrtFmpDxe/EsrtFmpDxe.inf
++
++  # Helper drivers
++  Platform/RenegadePkg/Drivers/SetCPUFreqDxe/SetCPUFreqDxe.inf
++  Platform/RenegadePkg/Drivers/KernelErrataPatcher/KernelErrataPatcher.inf
++
++  # SwitchSlotsApp-BootSlotDxe
++!if $(AB_SLOTS_SUPPORT) == TRUE
++  GPLDrivers/Drivers/BootSlotDxe/BootSlotDxe.inf
++  GPLDrivers/Application/SwitchSlotsApp/SwitchSlotsApp.inf
++!endif
++
++  Platform/RenegadePkg/Application/Reboot2PayloadApp/Reboot2PayloadApp.inf
+diff --git a/build_j7.sh b/build_j7.sh
+new file mode 100755
+index 0000000..3c63443
+--- /dev/null
++++ b/build_j7.sh
+@@ -0,0 +1,3 @@
++#!/bin/bash
++
++GCC5_AARCH64_PREFIX=aarch64-linux-gnu- ./build.sh -d j7 -t GCC5 -r DEBUG
+diff --git a/configs/devices/j7.conf b/configs/devices/j7.conf
+new file mode 100644
+index 0000000..6cbe26b
+--- /dev/null
++++ b/configs/devices/j7.conf
+@@ -0,0 +1,8 @@
++SOC_PLATFORM="EXYNOS7580"
++VENDOR_NAME="Samsung"
++PLATFORM_NAME="j7"
++
++# mkbootimg config (verify against the device's stock boot.img header)
++BOOTIMG_OS_PATCH_LEVEL="2023-02"
++BOOTIMG_OS_VERSION=11.0.0
++BOOTIMG_HEADER_VERSION=0
+diff --git a/configs/exynos7580.conf b/configs/exynos7580.conf
+new file mode 100644
+index 0000000..2d3014f
+--- /dev/null
++++ b/configs/exynos7580.conf
+@@ -0,0 +1,2 @@
++FD_BASE=0x50000000
++FD_SIZE=0x00700000

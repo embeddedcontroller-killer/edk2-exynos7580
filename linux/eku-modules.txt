@@ -1,0 +1,5 @@
+mmc_core.ko
+mmc_block.ko
+dw_mmc.ko
+dw_mmc-pltfm.ko
+dw_mmc-exynos.ko

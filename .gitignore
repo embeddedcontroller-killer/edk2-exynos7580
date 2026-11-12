@@ -1,0 +1,12 @@
+# derleme çıktıları
+/build/
+Build/
+out/
+*.o
+*.a
+*.d
+
+# yerel araçlar
+__pycache__/
+*.pyc
+*.swp

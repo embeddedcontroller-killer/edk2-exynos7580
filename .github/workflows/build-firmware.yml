@@ -1,0 +1,56 @@
+name: build-firmware
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "EDK2 derleme tipi"
+        default: DEBUG
+        type: choice
+        options: [ DEBUG, RELEASE ]
+
+env:
+  TARGET: ${{ github.event.inputs.target || 'DEBUG' }}
+  EDK2_DIR: ${{ github.workspace }}/build/work/edk2-exynos
+
+jobs:
+  firmware:
+    name: EDK2 UEFI firmware (EXYNOS7580)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bağımlılıklar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential uuid-dev iasl nasm python3 python-is-python3 git \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu acpica-tools
+
+      - name: EDK2 ağacı + J7 portu
+        run: bash scripts/setup-edk2.sh
+
+      - name: Binaries/ (prebuilt ikili dosyalar)
+        run: bash scripts/install-binaries.sh "$EDK2_DIR"
+
+      - name: Firmware derleme
+        run: |
+          cd "$EDK2_DIR"
+          ./build_j7.sh "$TARGET"
+
+      - name: Çıktıyı topla
+        run: |
+          FD="$EDK2_DIR/Build/j7/${TARGET}_GCC5/FV/EXYNOS7580_UEFI.fd"
+          mkdir -p out
+          cp "$FD" "out/EXYNOS7580_UEFI-${TARGET}.fd"
+          ( cd out && sha256sum *.fd | tee SHA256SUMS )
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EXYNOS7580_UEFI-${{ env.TARGET }}
+          path: out/
+          if-no-files-found: error

@@ -1,0 +1,21 @@
+[j7init] basladi
+[j7init] /dev/fb0 yok
+[j7init] rootfs modu: eku.root=auto
+[j7init] modul yuklendi: mmc_core.ko
+[j7init] modul yuklendi: mmc_block.ko
+[j7init] modul yuklendi: dw_mmc.ko
+[j7init] modul yuklendi: dw_mmc-pltfm.ko
+[j7init] modul yuklendi: dw_mmc-exynos.ko
+[j7init] blok aygiti: var (0.0 sn)
+[j7init] 1 aday bolum
+[j7init] deneniyor: /dev/vda1
+[j7init]   init yok, atlandi
+[j7init] TANI: adaylar kullanilamadi (mount/init)
+[j7init] blok aygitlari (ad / MB / GPT adi / ext4 etiketi):
+[j7init] vda1               24  USERDATA       ext4, etiket yok
+[j7init] vda                64  -              -
+[j7init] cekirdek mesajlari (mmc / blok / ext4):
+[j7init] <6>[    0.392231] virtio_blk virtio0: 1/0/0 default/read/poll queues
+[j7init] <5>[    0.401738] virtio_blk virtio0: [vda] 131072 512-byte logical blocks (67.1 MB/64.0 MiB)
+[j7init] <6>[   10.971525] EXT4-fs (vda1): mounted filesystem b9e798de-2e5b-4ed6-89e3-eaf98099da95 ro wit
+[j7init] <6>[   10.978624] EXT4-fs (vda1): unmounting filesystem b9e798de-2e5b-4ed6-89e3-eaf98099da95.

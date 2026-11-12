@@ -1,0 +1,14 @@
+--- a/grub-core/kern/arm64/efi/init.c	2020-07-29 14:55:48.000000000 +0000
++++ b/grub-core/kern/arm64/efi/init.c	2026-11-08 06:35:30.663804508 +0000
+@@ -45,6 +45,11 @@
+   grub_efi_init ();
+ 
+   asm volatile("mrs %0,   cntfrq_el0" : "=r" (timer_frequency));
++  /* Galaxy J7 (Exynos 7580): S-Boot leaves CNTFRQ_EL0 = 0, which would make
++     grub_efi_get_time_ms() divide by zero (always 0): menu timeout and sleep never end.
++     Use the real counter frequency (26 MHz) in that case.  */
++  if (timer_frequency == 0)
++    timer_frequency = 26000000;
+   timer_frequency_in_khz = timer_frequency / 1000;
+ 
+   grub_install_get_time_ms (grub_efi_get_time_ms);

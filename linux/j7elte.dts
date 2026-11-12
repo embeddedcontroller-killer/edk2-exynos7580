@@ -1,0 +1,120 @@
+/dts-v1/;
+
+/*
+ * Minimal DT for Samsung Galaxy J7 (2015), Exynos 7580, for EFI-stub Linux started from our EDK2.
+ * Addresses come from the stock J7 DTS (see DEVICE_MAP.md). Memory is taken from the EFI memory map.
+ */
+/ {
+	compatible = "samsung,j7elte", "samsung,exynos7580";
+	model = "Samsung Galaxy J7 (2015)";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&gic>;
+
+	chosen {
+		bootargs = "console=tty0 ignore_loglevel initcall_debug clk_ignore_unused pd_ignore_unused maxcpus=1 rdinit=/init";
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* UEFI/S-Boot framebuffer, 720 x 1280 x 4 bytes */
+		framebuffer_reserved: framebuffer@67000000 {
+			reg = <0x0 0x67000000 0x0 0x384000>;
+			no-map;
+		};
+	};
+
+	framebuffer@67000000 {
+		compatible = "simple-framebuffer";
+		reg = <0x0 0x67000000 0x0 0x384000>;
+		width = <720>;
+		height = <1280>;
+		stride = <2880>;
+		format = "a8r8g8b8";
+	};
+
+	/*
+	 * eMMC (dwmmc0). EXPERIMENTAL: mainline has no Exynos 7580 clock driver, so the clocks are
+	 * fixed placeholders and the controller is left in the state S-Boot configured. The driver
+	 * is built as a module and only loaded by /init when the kernel command line has eku.root=.
+	 */
+	mmc_biu: clock-mmc-biu {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	mmc_ciu: clock-mmc-ciu {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	mmc@13540000 {
+		compatible = "samsung,exynos7-dw-mshc";
+		reg = <0x0 0x13540000 0x0 0x2000>;
+		interrupts = <0 245 4>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&mmc_biu>, <&mmc_ciu>;
+		clock-names = "biu", "ciu";
+		fifo-depth = <0x40>;
+		samsung,dw-mshc-ciu-div = <3>;
+		samsung,dw-mshc-sdr-timing = <0 4>;
+		samsung,dw-mshc-ddr-timing = <0 2>;
+		bus-width = <8>;
+		non-removable;
+		broken-cd;
+		disable-wp;
+		cap-mmc-highspeed;
+		max-frequency = <400000>;   /* slow, safe: real CIU rate is unknown (fixed placeholder clock) */
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x0 0x40000000 0x0 0x50000000>;
+	};
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		cpu0: cpu@0   { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x000>; enable-method = "psci"; };
+		cpu1: cpu@1   { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x001>; enable-method = "psci"; };
+		cpu2: cpu@2   { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x002>; enable-method = "psci"; };
+		cpu3: cpu@3   { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x003>; enable-method = "psci"; };
+		cpu4: cpu@100 { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x100>; enable-method = "psci"; };
+		cpu5: cpu@101 { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x101>; enable-method = "psci"; };
+		cpu6: cpu@102 { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x102>; enable-method = "psci"; };
+		cpu7: cpu@103 { device_type = "cpu"; compatible = "arm,cortex-a53"; reg = <0x0 0x103>; enable-method = "psci"; };
+	};
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	gic: interrupt-controller@10c01000 {
+		compatible = "arm,gic-400";
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+		interrupt-controller;
+		reg = <0x0 0x10c01000 0x0 0x1000>,
+		      <0x0 0x10c02000 0x0 0x2000>,
+		      <0x0 0x10c04000 0x0 0x2000>,
+		      <0x0 0x10c06000 0x0 0x2000>;
+		interrupts = <1 9 0xf04>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		/* secure phys, non-secure phys, virt, hyp; level low, all 8 CPUs */
+		interrupts = <1 13 0xff08>, <1 14 0xff08>, <1 11 0xff08>, <1 10 0xff08>;
+		/* S-Boot leaves CNTFRQ_EL0 = 0 (UEFI logged it), so give the frequency here */
+		clock-frequency = <26000000>;
+		always-on;
+	};
+};
