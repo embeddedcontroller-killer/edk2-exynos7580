@@ -65,6 +65,18 @@ libssl-dev libelf-dev device-tree-compiler
 ```
 `gawk` şart: GRUB'ın `make` hattı `mawk` ile çalışmaz (`asorti` yok).
 
+### Ortam uyarısı (dürüst not)
+- **BaseTools:** `edk2` BaseTools'un C tarafı (VfrCompile → Pccts/dlg) GCC 14+ ile derlenmiyor.
+  GCC 11–13 kullan (CI'da `ubuntu-22.04`) ya da `BUILD_CC=gcc-13 ./scripts/setup-edk2.sh`.
+- **SimpleInit:** `edk2-exynos`'un `GPLDrivers/Library/SimpleInit` alt modülündeki
+  `libs/compatible/include/stdbool.h` (`typedef BOOLEAN bool;`) yeni GCC'lerde hata veriyor
+  ("two or more data types in declaration specifiers"). Portun kendi dosyaları bu başlığı
+  kullanmıyor; sorun yalnızca bu alt modülde. Çözüm seçenekleri: SimpleInit'in daha yeni bir
+  commit'ine geçmek, ya da LVGL/SimpleInit'in bu başlığı kullanmadığı bir derleme bayrağı —
+  ikisi de **cihazda denenmeden** değiştirilmemeli. Bu depodaki `prebuilt/` imajları hattın
+  sorunsuz çalıştığı ortamda derlenmiş sürümlerdir; `./build-all.sh` bu ortamı (GCC 11–13)
+  hedefler.
+
 ## Dizinler
 `edk2-exynos-j7/` `linux/` `grub/` `scripts/` `recipe/` `tools/` `bootimg-tools/` `docs/` `prebuilt/`
 

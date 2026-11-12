@@ -30,7 +30,12 @@ DEVICE="${DEVICE:-j7}"
 die() { echo "HATA: $*" >&2; exit 1; }
 
 [ -f build.sh ] || die "build.sh yok. Bu betik edk2-exynos agacinin kokunde calismali (bkz. scripts/setup-edk2.sh)."
-[ -d BaseTools ] || die "BaseTools yok. edk2 alt modulu eksik: git submodule update --init --recursive"
+# BaseTools: edk2-exynos'da Common/edk2/BaseTools, bazi agaclarda kokte BaseTools
+EDK2_BASE=""
+for c in Common/edk2 BaseTools; do
+  [ -d "$c/BaseTools" ] && { EDK2_BASE="$c"; break; }
+done
+[ -n "$EDK2_BASE" ] || die "BaseTools yok. edk2 alt modulu eksik: git submodule update --init --recursive"
 [ -d Platform/Samsung/exynos7580 ] || die "Platform/Samsung/exynos7580 yok. ./build.sh setup $DEVICE calistir (veya scripts/setup-edk2.sh)."
 [ -d Silicon/Samsung/Exynos7580Pkg ] || die "Silicon/Samsung/Exynos7580Pkg yok. ./build.sh setup $DEVICE calistir."
 
@@ -39,9 +44,12 @@ command -v python3 >/dev/null 2>&1 || die "python3 bulunamadi."
 command -v iasl >/dev/null 2>&1 || echo "UYARI: iasl yok; ACPI tablolari derlenemezse 'sudo apt install iasl' gerekir." >&2
 
 # BaseTools'un C parcalari (GenFw, GenFfs, VfrCompile...) derlenmis mi?
-if [ ! -x BaseTools/Source/C/bin/GenFw ] || [ ! -x BaseTools/Source/C/bin/VfrCompile ]; then
-  echo ">> BaseTools/Source/C derleniyor"
-  make -C BaseTools/Source/C -j"$(nproc)"
+if [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/GenFw" ] || [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/VfrCompile" ]; then
+  echo ">> BaseTools/Source/C derleniyor ($EDK2_BASE/BaseTools)"
+  make -C "$EDK2_BASE/BaseTools/Source/C" -j"$(nproc)" \
+    BUILD_CFLAGS="-Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable" \
+    BUILD_CXXFLAGS="-Wno-error" \
+    || make -C "$EDK2_BASE/BaseTools/Source/C" -j1
 fi
 
 if [ "$CLEAN" = "--clean" ] || [ "$CLEAN" = "clean" ]; then
@@ -55,8 +63,41 @@ for f in grubaa64.efi linux-Image j7elte.dtb startup.nsh; do
   [ -s "$BIN/$f" ] || die "$BIN/$f yok/bos. Once: ./build-grub.sh ve ./build-linux.sh (veya ./build-all.sh)"
 done
 
+# edk2-exynos'un build.sh BaseTools'u kendi basina derler ("make -C .../BaseTools") ve bu adim
+# GCC 14+ ile patlar. BaseTools zaten derlenmis oldugu icin o cagriyi atlatan bir sarmalayici
+# kullaniyoruz: EDK2_BASE_BT altindaki make cagrilari 0 ile doner, digerleri gercek make'e gider.
+if [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/VfrCompile" ]; then
+  die "BaseTools eksik (VfrCompile). Once: bash scripts/setup-edk2.sh (GCC 12/13 ile)"
+fi
+EDK2_BASE_BT="$EDK2_BASE/BaseTools"
+make() {
+  if [ "$1" = "-C" ] && [ "${2%/BaseTools}" != "$2" ]; then
+    echo ">> BaseTools derlemesi atlandi (hazir: $EDK2_BASE/BaseTools/Source/C/bin)"
+    return 0
+  fi
+  command make "$@"
+}
+export -f make
+export EDK2_BASE_BT
+
 echo ">> EDK2 derleniyor: device=$DEVICE target=$TARGET prefix=$PREFIX"
-GCC5_AARCH64_PREFIX="$PREFIX" ./build.sh -d "$DEVICE" -t GCC5 -r "$TARGET"
+# build.sh icindeki BaseTools derleme cagrisini atlayan sarmalayiciyi kullan
+BT_SHIM="$(mktemp -d)"
+cat > "$BT_SHIM/make" <<'SHIM'
+#!/bin/bash
+args=("$@")
+for i in "${!args[@]}"; do
+  if [ "${args[$i]}" = "-C" ] && [ "${args[$((i+1))]%/BaseTools}" != "${args[$((i+1))]}" ]; then
+    echo ">> BaseTools derlemesi atlandi (hazir BaseTools kullaniliyor)"
+    exit 0
+  fi
+done
+exec /usr/bin/make "$@"
+SHIM
+chmod +x "$BT_SHIM/make"
+trap 'rm -rf "$BT_SHIM"' EXIT
+
+GCC5_AARCH64_PREFIX="$PREFIX" PATH="$BT_SHIM:$PATH" ./build.sh -d "$DEVICE" -t GCC5 -r "$TARGET"
 
 FD="Build/$DEVICE/${TARGET}_GCC5/FV/EXYNOS7580_UEFI.fd"
 [ -f "$FD" ] || FD="Build/$DEVICE/${TARGET}_GCC5/FV/EXYNOS7580Pkg.fd"

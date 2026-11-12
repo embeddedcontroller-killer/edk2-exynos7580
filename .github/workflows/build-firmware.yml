@@ -41,6 +41,8 @@ jobs:
         run: |
           cd "$EDK2_DIR"
           ./build_j7.sh "$TARGET"
+        # NOT: SimpleInit alt modulu yeni GCC'lerde derlenmiyor (README "Ortam uyarisi").
+        # ubuntu-22.04 (GCC 11) bu yuzden sabit; is akisi kirilirsa once o notu oku.
 
       - name: Çıktıyı topla
         run: |
