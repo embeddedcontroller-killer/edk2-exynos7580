@@ -67,14 +67,16 @@ chmod -R a+rwx "$SHIM" 2>/dev/null || true
 
 # Pccts makefile'lari BUILD_CFLAGS'e kendi -I'sini koyuyor ama $(SET)/$(PCCTS_H)
 # BUILD_CFLAGS'ten SONRA tanimli; bu yuzden -I'lari sarmalayici derleyici veriyor.
-BT_INC="-I. -I.. -I../support/set -I../h -Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable"
+# Ayni sarmalayici -Werror'i da kapatiyor: BaseTools'un kendi CFLAGS'i (Makefiles/header.makefile)
+# -Wall -Werror iceriyor ve yeni GCC'lerde (orn. StringFuncs.c 'Item' set but not used) patliyor.
+BT_FLAGS="-I. -I.. -I../support/set -I../h -Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable"
 cat > "$SHIM/cc" <<SHIMCC
 #!/bin/sh
-exec $BUILD_CC $BT_INC "\$@"
+exec $BUILD_CC $BT_FLAGS "\$@"
 SHIMCC
 chmod +x "$SHIM/cc"
-printf '#!/bin/sh\nexec %s "$@"\n' "$BUILD_CC"  > "$SHIM/gcc"; chmod +x "$SHIM/gcc"
-printf '#!/bin/sh\nexec %s "$@"\n' "$BUILD_CXX" > "$SHIM/g++"; chmod +x "$SHIM/g++"
+printf '#!/bin/sh\nexec %s %s "$@"\n' "$BUILD_CC" "$BT_FLAGS"  > "$SHIM/gcc"; chmod +x "$SHIM/gcc"
+printf '#!/bin/sh\nexec %s -Wno-error "$@"\n' "$BUILD_CXX"        > "$SHIM/g++"; chmod +x "$SHIM/g++"
 export PATH="$SHIM:$PATH"
 echo ">> BaseTools derleyicisi: $BUILD_CC ($BUILD_CXX)"
 
@@ -82,6 +84,7 @@ BT_LOG="$EDK2_BASE/BaseTools/build.log"
 # BUILDRULEORDER'da "Makefile" EN BASTA olmali; yoksa EDK2 BaseTools'un kendi kucuk harfli
 # "makefile"ini kullanip -I bayraklarini dusuruyor (pcctscfg.h: No such file).
 if ! make -C "$EDK2_BASE/BaseTools/Source/C" -j"$(nproc)" CC="$BUILD_CC" CXX="$BUILD_CXX" \
+      BUILD_CFLAGS="-Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable" \
       BUILD_CXXFLAGS="-Wno-error" \
       BUILDRULEORDER="Makefile *.nasm *.NASM *.asm *.ASM *.S *.s *.c *.cpp" > "$BT_LOG" 2>&1; then
   echo "UYARI: BaseTools derlenemedi; son hatalar:" >&2
