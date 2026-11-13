@@ -46,7 +46,10 @@ cd edk2-exynos7580
 2. `build-grub.sh` — GRUB 2.12 + `grub-2.12-j7-cntfrq.patch` + gömülü `grub.cfg` → `grubaa64.efi`.
 3. `build-linux.sh` — Linux 6.12 + `j7-kernel-v9.patch` + `frag.config` → `Image` + `j7elte.dtb`.
 4. `scripts/install-binaries.sh` — çıktıları `edk2-exynos-j7/Platform/Samsung/exynos7580/Binaries/`'e koyar.
-5. `build_j7.sh` — EDK2 derlemesi.
+5. `build_j7.sh` — EDK2 derlemesi (`build.sh`'ın BaseTools adımını atlayan sarmalayıcıyla).
+
+Çıktı: `build/work/edk2-exynos/workspace/Build/j7/DEBUG_GCC5/FV/EXYNOS7580_UEFI.fd`
+(`build.sh` FD'yi `workspace/` altına yazıyor; `build_j7.sh` iki yolu da arar).
 
 ### 2) Elle, EDK2 tarafı
 ```bash
@@ -67,15 +70,15 @@ libssl-dev libelf-dev device-tree-compiler
 
 ### Ortam uyarısı (dürüst not)
 - **BaseTools:** `edk2` BaseTools'un C tarafı (VfrCompile → Pccts/dlg) GCC 14+ ile derlenmiyor.
-  GCC 11–13 kullan (CI'da `ubuntu-22.04`) ya da `BUILD_CC=gcc-13 ./scripts/setup-edk2.sh`.
-- **SimpleInit:** `edk2-exynos`'un `GPLDrivers/Library/SimpleInit` alt modülündeki
-  `libs/compatible/include/stdbool.h` (`typedef BOOLEAN bool;`) yeni GCC'lerde hata veriyor
-  ("two or more data types in declaration specifiers"). Portun kendi dosyaları bu başlığı
-  kullanmıyor; sorun yalnızca bu alt modülde. Çözüm seçenekleri: SimpleInit'in daha yeni bir
-  commit'ine geçmek, ya da LVGL/SimpleInit'in bu başlığı kullanmadığı bir derleme bayrağı —
-  ikisi de **cihazda denenmeden** değiştirilmemeli. Bu depodaki `prebuilt/` imajları hattın
-  sorunsuz çalıştığı ortamda derlenmiş sürümlerdir; `./build-all.sh` bu ortamı (GCC 11–13)
-  hedefler.
+  `scripts/setup-edk2.sh` GCC 12/13'ü otomatik seçer (`BUILD_CC=gcc-13` ile elle de verilebilir)
+  ve iki bilinen tuzağı kendisi kapatır: `BUILDRULEORDER`'da `Makefile`'ın ilk sırada olması
+  (yoksa `pcctscfg.h: No such file`) ve Pccts'un `$(SET)`'i geç tanımlaması (sarmalayıcı `cc`).
+- **SimpleInit:** yeni GCC'lerde `libs/compatible/include/stdbool.h` (`typedef BOOLEAN bool;`)
+  hata verebilir; portun kendi dosyaları bu başlığı kullanmaz. GCC 12/13 ile derlemede sorun çıkmıyor.
+- **msgfmt:** `build.sh` çeviri adımı için `gettext` ister (`sudo apt install gettext`).
+- **Doğrulanmış ortam:** Debian 12 / GCC 12,2 — `setup-edk2.sh` + `build_j7.sh DEBUG` uçtan uca
+  çalıştı ve `workspace/Build/j7/DEBUG_GCC5/FV/EXYNOS7580_UEFI.fd` (7.340.032 bayt) üretildi.
+  Cihazda flaşlanarak denenmedi.
 
 ## Dizinler
 `edk2-exynos-j7/` `linux/` `grub/` `scripts/` `recipe/` `tools/` `bootimg-tools/` `docs/` `prebuilt/`

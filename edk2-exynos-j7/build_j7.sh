@@ -44,12 +44,9 @@ command -v python3 >/dev/null 2>&1 || die "python3 bulunamadi."
 command -v iasl >/dev/null 2>&1 || echo "UYARI: iasl yok; ACPI tablolari derlenemezse 'sudo apt install iasl' gerekir." >&2
 
 # BaseTools'un C parcalari (GenFw, GenFfs, VfrCompile...) derlenmis mi?
-if [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/GenFw" ] || [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/VfrCompile" ]; then
-  echo ">> BaseTools/Source/C derleniyor ($EDK2_BASE/BaseTools)"
-  make -C "$EDK2_BASE/BaseTools/Source/C" -j"$(nproc)" \
-    BUILD_CFLAGS="-Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable" \
-    BUILD_CXXFLAGS="-Wno-error" \
-    || make -C "$EDK2_BASE/BaseTools/Source/C" -j1
+# Derlenmemisse scripts/setup-edk2.sh yonlendirir: GCC 14+ ile BaseTools derlenmiyor.
+if [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/VfrCompile" ]; then
+  die "BaseTools derlenmemis ($EDK2_BASE/BaseTools). Once: bash scripts/setup-edk2.sh (GCC 12/13)"
 fi
 
 if [ "$CLEAN" = "--clean" ] || [ "$CLEAN" = "clean" ]; then
@@ -62,23 +59,6 @@ BIN="Platform/Samsung/exynos7580/Binaries"
 for f in grubaa64.efi linux-Image j7elte.dtb startup.nsh; do
   [ -s "$BIN/$f" ] || die "$BIN/$f yok/bos. Once: ./build-grub.sh ve ./build-linux.sh (veya ./build-all.sh)"
 done
-
-# edk2-exynos'un build.sh BaseTools'u kendi basina derler ("make -C .../BaseTools") ve bu adim
-# GCC 14+ ile patlar. BaseTools zaten derlenmis oldugu icin o cagriyi atlatan bir sarmalayici
-# kullaniyoruz: EDK2_BASE_BT altindaki make cagrilari 0 ile doner, digerleri gercek make'e gider.
-if [ ! -x "$EDK2_BASE/BaseTools/Source/C/bin/VfrCompile" ]; then
-  die "BaseTools eksik (VfrCompile). Once: bash scripts/setup-edk2.sh (GCC 12/13 ile)"
-fi
-EDK2_BASE_BT="$EDK2_BASE/BaseTools"
-make() {
-  if [ "$1" = "-C" ] && [ "${2%/BaseTools}" != "$2" ]; then
-    echo ">> BaseTools derlemesi atlandi (hazir: $EDK2_BASE/BaseTools/Source/C/bin)"
-    return 0
-  fi
-  command make "$@"
-}
-export -f make
-export EDK2_BASE_BT
 
 echo ">> EDK2 derleniyor: device=$DEVICE target=$TARGET prefix=$PREFIX"
 # build.sh icindeki BaseTools derleme cagrisini atlayan sarmalayiciyi kullan
@@ -99,13 +79,19 @@ trap 'rm -rf "$BT_SHIM"' EXIT
 
 GCC5_AARCH64_PREFIX="$PREFIX" PATH="$BT_SHIM:$PATH" ./build.sh -d "$DEVICE" -t GCC5 -r "$TARGET"
 
-FD="Build/$DEVICE/${TARGET}_GCC5/FV/EXYNOS7580_UEFI.fd"
-[ -f "$FD" ] || FD="Build/$DEVICE/${TARGET}_GCC5/FV/EXYNOS7580Pkg.fd"
+# build.sh FD'yi kendi WORKSPACE'ine (varsayilan: <agac>/workspace) yaziyor.
+FD=""
+for d in Build "$WORKSPACE" ./workspace; do
+  [ -n "$d" ] || continue
+  cand="$d/$DEVICE/${TARGET}_GCC5/FV/EXYNOS7580_UEFI.fd"
+  [ -f "$cand" ] && FD="$cand" && break
+done
+[ -n "$FD" ] || FD="Build/$DEVICE/${TARGET}_GCC5/FV/EXYNOS7580_UEFI.fd"
 if [ -f "$FD" ]; then
   echo
   echo "TAMAM: $FD  ($(stat -c %s "$FD") bayt, sha256 $(sha256sum "$FD" | cut -c1-16)...)"
   echo "Yazmak icin: python3 tools/package_boot.py $FD <cikti-adi>  (veya tools/ altindaki yardimcilar)"
 else
-  echo "Derleme bitti ama $FD bulunamadi; Build/$DEVICE/${TARGET}_GCC5/FV/ icerigine bak." >&2
+  echo "Derleme bitti ama firmware bulunamadi; su dizinlere bak: Build/$DEVICE/${TARGET}_GCC5/FV/ ve workspace/Build/$DEVICE/${TARGET}_GCC5/FV/" >&2
   exit 1
 fi

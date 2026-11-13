@@ -38,7 +38,11 @@ fi
 
 cd "$EDK2_DIR"
 echo ">> alt moduller (edk2, edk2-platforms, SimpleInit, EFI_Binaries)"
-git submodule update --init --recursive
+# CryptoPkg'in wycheproof alt modulu bazi commit'lerde eksik ve tum guncellemeyi durduruyor;
+# firmware icin gerekmedigi icin once derin (recursive) denenir, olmazsa duz guncelleme.
+git submodule update --init --recursive --depth 1 \
+  || git submodule update --init --recursive \
+  || { echo "UYARI: bazi alt moduller eksik kaldi (wycheproof); BaseTools/SimpleInit/EFI_Binaries kontrol edilecek" >&2; }
 
 # BaseTools edk2 agacinin icinde: edk2-exynos'da Common/edk2/BaseTools
 EDK2_BASE=""
@@ -55,12 +59,33 @@ BUILD_CXX="${BUILD_CXX:-$(command -v g++-13 || command -v g++-12 || command -v g
 echo ">> BaseTools derleyicisi: $BUILD_CC"
 
 echo ">> BaseTools/Source/C derleniyor ($EDK2_BASE/BaseTools)"
-# Not: yeni GCC (>=14) BaseTools'un eski kodunda -Werror'a takilir; uyarilari hata saymiyoruz.
+# BaseTools'un eski kodu GCC 14+ ile derlenmiyor; GCC 12/13 varsa onu kullaniyoruz.
+BUILD_CC="${BUILD_CC:-$(command -v gcc-13 || command -v gcc-12 || command -v gcc)}"
+BUILD_CXX="${BUILD_CXX:-$(command -v g++-13 || command -v g++-12 || command -v g++)}"
+SHIM="$(mktemp -d)"; trap 'rm -rf "$SHIM"' EXIT
+chmod -R a+rwx "$SHIM" 2>/dev/null || true
+
+# Pccts makefile'lari BUILD_CFLAGS'e kendi -I'sini koyuyor ama $(SET)/$(PCCTS_H)
+# BUILD_CFLAGS'ten SONRA tanimli; bu yuzden -I'lari sarmalayici derleyici veriyor.
+BT_INC="-I. -I.. -I../support/set -I../h -Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable"
+cat > "$SHIM/cc" <<SHIMCC
+#!/bin/sh
+exec $BUILD_CC $BT_INC "\$@"
+SHIMCC
+chmod +x "$SHIM/cc"
+printf '#!/bin/sh\nexec %s "$@"\n' "$BUILD_CC"  > "$SHIM/gcc"; chmod +x "$SHIM/gcc"
+printf '#!/bin/sh\nexec %s "$@"\n' "$BUILD_CXX" > "$SHIM/g++"; chmod +x "$SHIM/g++"
+export PATH="$SHIM:$PATH"
+echo ">> BaseTools derleyicisi: $BUILD_CC ($BUILD_CXX)"
+
+BT_LOG="$EDK2_BASE/BaseTools/build.log"
+# BUILDRULEORDER'da "Makefile" EN BASTA olmali; yoksa EDK2 BaseTools'un kendi kucuk harfli
+# "makefile"ini kullanip -I bayraklarini dusuruyor (pcctscfg.h: No such file).
 if ! make -C "$EDK2_BASE/BaseTools/Source/C" -j"$(nproc)" CC="$BUILD_CC" CXX="$BUILD_CXX" \
-      BUILD_CFLAGS="-Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable" \
-      BUILD_CXXFLAGS="-Wno-error"; then
-  echo "UYARI: BaseTools derlenemedi (GCC cok yeni olabilir: VfrCompile/Pccts)." >&2
-  echo "        GCC 12/13 kurup BUILD_CC=gcc-13 ile tekrar dene." >&2
+      BUILD_CXXFLAGS="-Wno-error" \
+      BUILDRULEORDER="Makefile *.nasm *.NASM *.asm *.ASM *.S *.s *.c *.cpp" > "$BT_LOG" 2>&1; then
+  echo "UYARI: BaseTools derlenemedi; son hatalar:" >&2
+  grep -E "error|Error" "$BT_LOG" | tail -10 >&2
   exit 1
 fi
 
@@ -85,5 +110,10 @@ grep -q 'ExynosCommonDsc.j7.inc' Platform/Samsung/exynos7580/exynos7580.dsc || {
 for f in grubaa64.efi linux-Image j7elte.dtb startup.nsh; do
   [ -s "Platform/Samsung/exynos7580/Binaries/$f" ] || echo "UYARI: Binaries/$f eksik (./build-all.sh uretir)" >&2
 done
+
+# build.sh'in FDF'si FdtBlob_compat/j7.dtb istiyor; portun DTB'sini oraya da koyuyoruz.
+mkdir -p Platform/Samsung/exynos7580/FdtBlob_compat
+cp -f Platform/Samsung/exynos7580/Binaries/j7elte.dtb \
+      Platform/Samsung/exynos7580/FdtBlob_compat/j7.dtb 2>/dev/null || true
 
 echo "TAMAM: $EDK2_DIR hazir. Derleme: cd \"$EDK2_DIR\" && ./build_j7.sh"
