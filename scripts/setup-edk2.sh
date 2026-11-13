@@ -69,10 +69,32 @@ chmod -R a+rwx "$SHIM" 2>/dev/null || true
 # BUILD_CFLAGS'ten SONRA tanimli; bu yuzden -I'lari sarmalayici derleyici veriyor.
 # Ayni sarmalayici -Werror'i da kapatiyor: BaseTools'un kendi CFLAGS'i (Makefiles/header.makefile)
 # -Wall -Werror iceriyor ve yeni GCC'lerde (orn. StringFuncs.c 'Item' set but not used) patliyor.
-BT_FLAGS="-I. -I.. -I../support/set -I../h -Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable"
+# Yeni GCC'lerin BaseTools'ta actigi iki delik:
+#  1) Pccts 1989 kodu eski usul "tip func()" bildirimlerine dayaniyor; GCC 15+ bunu
+#     "too many arguments to function 'fpTraverse[...]'" diye hata sayiyor -> -std=gnu89.
+#  2) Lzma SDK'nin Threads.h'si (LzmaCompress) Win32 tiplerini (HANDLE, LPVOID...) kosulsuz
+#     kullaniyor; -std=gnu89 Win32 on tanimlarini getirmedigi icin derleme kiriliyor.
+#     Sarmalayici bu basliklari (yalnizca Lzma SDK yolu icin) Win32 tipleriyle onceden tanitiyor.
+BT_STD="-std=gnu89 -I. -I.. -I../support/set -I../h -Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable"
+cat > "$SHIM/lzma-shim.h" <<'LZSHIM'
+#ifndef EDK2_LZMA_SHIM_H
+#define EDK2_LZMA_SHIM_H
+/* LzmaCompress/Sdk/C/Threads.h Win32 tiplerini bekliyor; Linux'ta bos karsiliklari. */
+#include <stddef.h>
+typedef void *HANDLE;
+typedef void *LPVOID;
+typedef unsigned long DWORD;
+typedef int BOOL;
+typedef struct { int dummy; } CRITICAL_SECTION;
+#endif
+LZSHIM
+BT_FLAGS="$BT_STD"
 cat > "$SHIM/cc" <<SHIMCC
 #!/bin/sh
-exec $BUILD_CC $BT_FLAGS "\$@"
+case " \$* " in
+  *"Sdk/C/"*)       exec $BUILD_CC $BT_STD -include "$SHIM/lzma-shim.h" "\$@" ;;
+  *)                exec $BUILD_CC $BT_STD "\$@" ;;
+esac
 SHIMCC
 chmod +x "$SHIM/cc"
 printf '#!/bin/sh\nexec %s %s "$@"\n' "$BUILD_CC" "$BT_FLAGS"  > "$SHIM/gcc"; chmod +x "$SHIM/gcc"
@@ -84,7 +106,7 @@ BT_LOG="$EDK2_BASE/BaseTools/build.log"
 # BUILDRULEORDER'da "Makefile" EN BASTA olmali; yoksa EDK2 BaseTools'un kendi kucuk harfli
 # "makefile"ini kullanip -I bayraklarini dusuruyor (pcctscfg.h: No such file).
 if ! make -C "$EDK2_BASE/BaseTools/Source/C" -j"$(nproc)" CC="$BUILD_CC" CXX="$BUILD_CXX" \
-      BUILD_CFLAGS="-Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable" \
+      BUILD_CFLAGS="-Wno-error -Wno-unused-but-set-variable -Wno-error=unused-but-set-variable -D_7ZIP_ST" \
       BUILD_CXXFLAGS="-Wno-error" \
       BUILDRULEORDER="Makefile *.nasm *.NASM *.asm *.ASM *.S *.s *.c *.cpp" > "$BT_LOG" 2>&1; then
   echo "UYARI: BaseTools derlenemedi; son hatalar:" >&2
